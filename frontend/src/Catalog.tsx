@@ -83,6 +83,7 @@ export default function Catalog({ concepts, onSelect }: {
         </section>
       )}
 
+      {quick.length > 0 && (
       <section style={S.section}>
         <h2 style={S.tierTitle}>Concepts &amp; curiosities</h2>
         <p style={S.tierLede}>
@@ -107,6 +108,7 @@ export default function Catalog({ concepts, onSelect }: {
           </div>
         ))}
       </section>
+      )}
     </div>
   );
 }

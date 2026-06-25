@@ -71,10 +71,25 @@ for _module in _MODULES:
         raise ValueError(f"duplicate concept id: {_concept.id}")
     REGISTRY[_concept.id] = _concept
 
+# The single source of truth for catalog visibility. Only these ids surface in
+# the listing. Everything else stays registered, tested, and reachable by direct
+# id, just hidden from the catalog until it is flagged here.
+PUBLISHED_IDS = frozenset({
+    "sorting-race", "binary-search",   # the two with full interactive practice
+    "minimax", "alpha-beta", "mcts",   # the game-AI cluster
+    "cipher",                          # the cryptanalysis experience
+})
+
 def get(concept_id: str) -> Optional[Concept]:
     return REGISTRY.get(concept_id)
 
 def all_concepts() -> list:
     return list(REGISTRY.values())
 
-__all__ = ["REGISTRY", "Concept", "Problem", "get", "all_concepts"]
+# Catalog listing draws from this. Direct-id endpoints keep using the full
+# REGISTRY, so hidden concepts stay reachable, just unlisted.
+def published_concepts() -> list:
+    return [c for c in REGISTRY.values() if c.id in PUBLISHED_IDS]
+
+__all__ = ["REGISTRY", "Concept", "Problem", "get", "all_concepts",
+           "published_concepts", "PUBLISHED_IDS"]

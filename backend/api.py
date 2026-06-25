@@ -111,13 +111,15 @@ def health():
 
 @app.get("/concepts", response_model=list[ConceptOut])
 def list_concepts():
+    # Catalog shows published concepts only. Hidden ones remain reachable through
+    # the /concepts/{id}/... routes below.
     return [
         ConceptOut(
             id=c.id, title=c.title, area=c.area, widget=c.widget,
             blurb=c.blurb, answer_unit=c.answer_unit, templates=list(c.templates),
             depth=c.depth,
         )
-        for c in concepts.all_concepts()
+        for c in concepts.published_concepts()
     ]
 
 @app.get("/concepts/{concept_id}/problem", response_model=ProblemOut)
