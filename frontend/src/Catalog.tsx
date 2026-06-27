@@ -1,8 +1,12 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { ConceptMeta } from "./api";
 import { interactiveModes } from "./interactivePractice";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, BORDER } from "./theme";
+import {
+  INK, SUBTLE, MUTED, ACCENT, BORDER, DISPLAY, MONO,
+  fs, space, eyebrow,
+} from "./theme";
 
+// Reader-facing names for the widget each concept ships with.
 const WIDGET_LABEL: Record<string, string> = {
   curve: "Curve explorer",
   trials: "Trials runner",
@@ -19,14 +23,13 @@ const WIDGET_LABEL: Record<string, string> = {
   cipher: "Cipher explorer",
 };
 
-const HAS_LESSON = new Set([
-  "compound-interest", "exponential-decay", "loan-amortization", "monty-hall",
-  "birthday-paradox", "base-rates", "hashing-collisions", "law-of-large-numbers",
-  "expected-value", "binary-search", "sorting-race", "big-o", "recursion-fib",
-  "minimax", "alpha-beta", "supply-demand", "tax-incidence", "prisoners-dilemma",
-  "grid-search", "central-limit", "regression-mean",
-  "mcts", "projectile", "cipher",
-]);
+// The meta line under a title. Carries what the experience contains as a quiet
+// mono caption rather than a row of coloured chips.
+function metaFor(c: ConceptMeta): string {
+  const bits = [WIDGET_LABEL[c.widget] ?? c.widget, "Guided lesson", "Live pseudocode"];
+  bits.push(interactiveModes(c.id).length > 0 ? "Interactive practice" : "Number drill");
+  return bits.join("  ·  ");
+}
 
 export default function Catalog({ concepts, onSelect }: {
   concepts: ConceptMeta[];
@@ -35,138 +38,115 @@ export default function Catalog({ concepts, onSelect }: {
   const experiences = concepts.filter((c) => c.depth === "experience");
   const quick = concepts.filter((c) => c.depth !== "experience");
 
-  const areas: string[] = [];
-  for (const c of quick) if (!areas.includes(c.area)) areas.push(c.area);
-
   return (
     <div style={S.page}>
       <header style={S.hero}>
+        <div style={eyebrow}>An assay for intuition</div>
         <h1 style={S.title}>Learn the things your gut gets wrong.</h1>
         <p style={S.lede}>
-          Interactive lessons plus unlimited practice. Every problem is graded by a tested engine, and when
-          you slip, the tutor names the exact misconception behind your answer - not just “wrong.”
+          Guided lessons with live pseudocode, and practice graded by a tested engine. When you
+          slip, it names the exact misconception behind your answer, not just <em>wrong</em>.
         </p>
       </header>
 
       {experiences.length > 0 && (
-        <section style={S.section}>
-          <h2 style={S.tierTitle}>Learning experiences</h2>
-          <p style={S.tierLede}>
-            Deep dives into a whole field - a guided lesson with live pseudocode, plus hands-on practice
-            where you run the algorithm yourself.
-          </p>
-          <div style={S.expGrid}>
-            {experiences.map((c) => {
-              const modes = interactiveModes(c.id).length;
-              return (
-                <button key={c.id} onClick={() => onSelect(c)} style={S.expCard}>
-                  <div style={S.cardTop}>
-                    <span style={S.badge}>{WIDGET_LABEL[c.widget] ?? c.widget}</span>
-                    <span style={S.expTag}>Experience</span>
-                  </div>
-                  <div style={S.expTitle}>{c.title}</div>
-                  <div style={S.cardBlurb}>{c.blurb}</div>
-                  <div style={S.chipRow}>
-                    <span style={S.chip}>Guided lesson</span>
-                    <span style={S.chip}>Live pseudocode</span>
-                    {modes > 0 ? (
-                      <span style={S.chipHot}>{modes + 1} practice modes</span>
-                    ) : (
-                      <span style={S.chip}>Practice</span>
-                    )}
-                  </div>
-                  <div style={S.expGo}>Open experience →</div>
-                </button>
-              );
-            })}
+        <section style={S.section} aria-label="Learning experiences">
+          <SectionHead
+            title="Learning experiences"
+            note="Each one is a whole field worked end to end, from the guided lesson to running the algorithm yourself."
+          />
+          <div style={S.list}>
+            {experiences.map((c) => (
+              <Row key={c.id} concept={c} onSelect={onSelect} />
+            ))}
           </div>
         </section>
       )}
 
       {quick.length > 0 && (
-      <section style={S.section}>
-        <h2 style={S.tierTitle}>Concepts &amp; curiosities</h2>
-        <p style={S.tierLede}>
-          Single-idea brain-teasers - one sharp insight each, with an interactive lesson and engine-graded practice.
-        </p>
-        {areas.map((area) => (
-          <div key={area} style={S.areaBlock}>
-            <h3 style={S.areaTitle}>{area}</h3>
-            <div style={S.grid}>
-              {quick.filter((c) => c.area === area).map((c) => (
-                <button key={c.id} onClick={() => onSelect(c)} style={S.card}>
-                  <div style={S.cardTop}>
-                    <span style={S.badge}>{WIDGET_LABEL[c.widget] ?? c.widget}</span>
-                    {HAS_LESSON.has(c.id) && <span style={S.lessonDot} title="Has an interactive lesson" />}
-                  </div>
-                  <div style={S.cardTitle}>{c.title}</div>
-                  <div style={S.cardBlurb}>{c.blurb}</div>
-                  <div style={S.cardGo}>Open →</div>
-                </button>
-              ))}
-            </div>
+        <section style={S.section} aria-label="Concepts and curiosities">
+          <SectionHead
+            title="Concepts & curiosities"
+            note="Single-idea brain-teasers, one sharp insight each, with an interactive lesson and engine-graded practice."
+          />
+          <div style={S.list}>
+            {quick.map((c) => (
+              <Row key={c.id} concept={c} onSelect={onSelect} />
+            ))}
           </div>
-        ))}
-      </section>
+        </section>
       )}
     </div>
   );
 }
 
+function SectionHead({ title, note }: { title: string; note: string }) {
+  return (
+    <div style={S.sectionHead}>
+      <h2 style={S.tierTitle}>{title}</h2>
+      <p style={S.tierNote}>{note}</p>
+    </div>
+  );
+}
+
+// A row is the whole hit target, so it stays keyboard reachable and gets the
+// global focus ring. Hover and focus raise an accent streak and warm the title,
+// which is all the affordance an editorial list needs.
+function Row({ concept, onSelect }: { concept: ConceptMeta; onSelect: (c: ConceptMeta) => void }) {
+  const [hot, setHot] = useState(false);
+  return (
+    <button
+      onClick={() => onSelect(concept)}
+      onMouseEnter={() => setHot(true)}
+      onMouseLeave={() => setHot(false)}
+      onFocus={() => setHot(true)}
+      onBlur={() => setHot(false)}
+      style={S.row}
+    >
+      <span style={{ ...S.streak, background: hot ? ACCENT : "transparent" }} />
+      <span style={S.rowBody}>
+        <span style={{ ...S.rowTitle, color: hot ? ACCENT : INK }}>{concept.title}</span>
+        <span style={S.rowBlurb}>{concept.blurb}</span>
+        <span style={S.rowMeta}>{metaFor(concept)}</span>
+      </span>
+      <span style={{ ...S.go, color: hot ? ACCENT : MUTED }} aria-hidden>
+        Open →
+      </span>
+    </button>
+  );
+}
+
 const S: Record<string, CSSProperties> = {
-  page: { maxWidth: 980, margin: "0 auto", padding: "8px 24px 64px", boxSizing: "border-box" },
-  hero: { maxWidth: 680, margin: "20px auto 44px", textAlign: "center" },
-  title: { fontSize: 34, fontWeight: 700, color: INK, margin: 0, lineHeight: 1.15 },
-  lede: { fontSize: 16, color: SUBTLE, lineHeight: 1.6, marginTop: 16 },
+  page: { maxWidth: 760, margin: "0 auto", padding: "8px 24px 80px", boxSizing: "border-box" },
 
-  section: { marginBottom: 48 },
-  tierTitle: { fontSize: 22, fontWeight: 700, color: INK, margin: "0 0 4px" },
-  tierLede: { fontSize: 14.5, color: SUBTLE, lineHeight: 1.55, margin: "0 0 20px", maxWidth: 620 },
+  hero: { maxWidth: 600, margin: "40px auto 56px", textAlign: "center" },
+  title: { fontFamily: DISPLAY, fontSize: fs.xxl, fontWeight: 600, color: INK, margin: 0, lineHeight: 1.1, letterSpacing: "-0.02em" },
+  lede: { fontSize: fs.md, color: SUBTLE, lineHeight: 1.6, marginTop: space.lg },
 
-  expGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 18 },
-  expCard: {
-    textAlign: "left",
-    background: "linear-gradient(180deg, #FFFFFF 0%, #FFFBF8 100%)",
-    border: `1px solid ${BORDER}`,
-    borderLeft: `3px solid ${ACCENT}`,
-    borderRadius: 16,
-    padding: "20px 22px 18px",
-    cursor: "pointer",
+  section: { marginBottom: space.huge },
+  sectionHead: { marginBottom: space.sm },
+  tierTitle: { fontFamily: DISPLAY, fontSize: fs.lg, fontWeight: 600, color: INK, margin: 0 },
+  tierNote: { fontSize: fs.sm, color: SUBTLE, lineHeight: 1.55, margin: `${space.xs}px 0 0`, maxWidth: 560 },
+
+  list: { display: "flex", flexDirection: "column", marginTop: space.lg, borderTop: `1px solid ${BORDER}` },
+  row: {
     display: "flex",
-    flexDirection: "column",
-    gap: 9,
-    boxShadow: "0 4px 16px rgba(234,88,12,0.07)",
-    transition: "box-shadow 0.15s, transform 0.15s",
-    font: "inherit",
-  },
-  expTag: { fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: ACCENT, background: "#FFF1E9", borderRadius: 6, padding: "3px 8px" },
-  expTitle: { fontSize: 20, fontWeight: 700, color: INK, marginTop: 2 },
-  chipRow: { display: "flex", flexWrap: "wrap", gap: 6, marginTop: 2 },
-  chip: { fontSize: 11, fontWeight: 600, color: SUBTLE, background: "#F4F4F5", borderRadius: 6, padding: "3px 8px" },
-  chipHot: { fontSize: 11, fontWeight: 700, color: "#fff", background: ACCENT, borderRadius: 6, padding: "3px 8px" },
-  expGo: { fontSize: 13, fontWeight: 700, color: ACCENT, marginTop: 6 },
-
-  areaBlock: { marginBottom: 28 },
-  areaTitle: { fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: MUTED, margin: "0 0 14px" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 },
-  card: {
+    alignItems: "flex-start",
+    gap: space.lg,
     textAlign: "left",
-    background: "#fff",
-    border: `1px solid ${BORDER}`,
-    borderRadius: 16,
-    padding: "18px 20px 16px",
+    width: "100%",
+    background: "none",
+    border: "none",
+    borderBottom: `1px solid ${BORDER}`,
+    padding: `${space.xl}px ${space.xs}px`,
     cursor: "pointer",
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    boxShadow: "0 1px 2px rgba(24,24,27,0.04)",
-    transition: "box-shadow 0.15s, transform 0.15s",
     font: "inherit",
+    transition: "padding-left 160ms cubic-bezier(0.2,0,0,1)",
   },
-  cardTop: { display: "flex", alignItems: "center", justifyContent: "space-between" },
-  badge: { fontSize: 11, fontWeight: 600, color: SUBTLE, background: "#F4F4F5", borderRadius: 6, padding: "3px 8px" },
-  lessonDot: { width: 8, height: 8, borderRadius: 999, background: GREEN, display: "inline-block" },
-  cardTitle: { fontSize: 18, fontWeight: 700, color: INK, marginTop: 2 },
-  cardBlurb: { fontSize: 14, color: SUBTLE, lineHeight: 1.5, flex: 1 },
-  cardGo: { fontSize: 13, fontWeight: 600, color: ACCENT, marginTop: 4 },
+  streak: { flexShrink: 0, width: 3, alignSelf: "stretch", borderRadius: 2, transition: "background 160ms" },
+  rowBody: { display: "flex", flexDirection: "column", gap: space.sm, flex: 1, minWidth: 0 },
+  rowTitle: { fontFamily: DISPLAY, fontSize: fs.lg, fontWeight: 600, transition: "color 160ms" },
+  rowBlurb: { fontSize: fs.sm, color: SUBTLE, lineHeight: 1.55 },
+  rowMeta: { fontFamily: MONO, fontSize: fs.micro, color: MUTED, letterSpacing: "0.02em", marginTop: space.xxs },
+  go: { fontFamily: MONO, fontSize: fs.xs, fontWeight: 500, flexShrink: 0, alignSelf: "center", transition: "color 160ms" },
 };

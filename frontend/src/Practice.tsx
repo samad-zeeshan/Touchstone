@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, type ChangeEvent, type CSSProperties, type KeyboardEvent } from "react";
 import { fetchProblem, gradeAttempt, type ConceptMeta, type Problem, type Outcome } from "./api";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, BORDER, primaryBtn, secondaryBtn, formatAnswer } from "./theme";
+import {
+  INK, SUBTLE, MUTED, ACCENT, GREEN, RED, BORDER, PAPER, MONO, NUM,
+  fs, space, radius, card, eyebrow, primaryBtn, secondaryBtn, formatAnswer,
+} from "./theme";
 import MistakeClip from "./MistakeClip";
 import { interactiveModes } from "./interactivePractice";
 
@@ -12,19 +15,27 @@ export default function Practice({ concept }: { concept: ConceptMeta }) {
   ];
   const [active, setActive] = useState<string>(modes[0].id);
 
+  // A concept with no interactive modes is the drill directly, no empty switcher.
   if (interactive.length === 0) return <NumberDrill concept={concept} />;
 
   const current = modes.find((m) => m.id === active) ?? modes[modes.length - 1];
   return (
     <div style={{ width: "100%", maxWidth: 640, margin: "0 auto" }}>
-      <div style={W.modeRowWrap}>
-        <div style={W.modeRow}>
-          {modes.map((m) => (
-            <button key={m.id} onClick={() => setActive(m.id)} style={modeBtn(m.id === active)}>
+      <div style={W.modeRow} role="tablist" aria-label="Practice modes">
+        {modes.map((m) => {
+          const on = m.id === active;
+          return (
+            <button
+              key={m.id}
+              role="tab"
+              aria-selected={on}
+              onClick={() => setActive(m.id)}
+              style={{ ...W.modeBtn, color: on ? INK : SUBTLE, borderBottomColor: on ? ACCENT : "transparent" }}
+            >
               {m.label}
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
       {current.render()}
     </div>
@@ -32,24 +43,13 @@ export default function Practice({ concept }: { concept: ConceptMeta }) {
 }
 
 const W: Record<string, CSSProperties> = {
-  modeRowWrap: { display: "flex", justifyContent: "center", marginBottom: 18 },
-  modeRow: { display: "inline-flex", background: "#E4E4E7", borderRadius: 999, padding: 4, gap: 4, flexWrap: "wrap" },
+  modeRow: { display: "flex", gap: space.lg, borderBottom: `1px solid ${BORDER}`, marginBottom: space.xl, flexWrap: "wrap" },
+  modeBtn: {
+    background: "none", border: "none", borderBottom: "2px solid transparent",
+    padding: `0 0 ${space.md}px`, marginBottom: -1, fontSize: fs.sm, fontWeight: 600,
+    cursor: "pointer", font: "inherit", transition: "color 160ms, border-color 160ms",
+  },
 };
-
-function modeBtn(isActive: boolean): CSSProperties {
-  return {
-    border: "none",
-    borderRadius: 999,
-    padding: "7px 16px",
-    fontSize: 13.5,
-    fontWeight: 600,
-    cursor: "pointer",
-    background: isActive ? "#fff" : "transparent",
-    color: isActive ? ACCENT : SUBTLE,
-    boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.12)" : "none",
-    fontFamily: "inherit",
-  };
-}
 
 type Result =
   | { kind: "info"; message: string }
@@ -97,7 +97,7 @@ function NumberDrill({ concept }: { concept: ConceptMeta }) {
       const outcome = await gradeAttempt(concept.id, problem, submitted);
       setResult({ kind: "outcome", outcome, submitted });
     } catch {
-      setResult({ kind: "info", message: "Couldn't reach the practice server. Is it still running on port 8000?" });
+      setResult({ kind: "info", message: "Couldn't reach the grader. Check the backend is running, then retry." });
     } finally {
       setChecking(false);
     }
@@ -109,19 +109,21 @@ function NumberDrill({ concept }: { concept: ConceptMeta }) {
   if (loadError) {
     return (
       <Shell concept={concept}>
-        <p style={S.prompt}>Couldn't reach the practice server.</p>
+        <p style={S.prompt}>Couldn't reach the grader.</p>
         <p style={S.explain}>
-          Start the backend - in a terminal in the <code>backend</code> folder: <code>uvicorn api:app --reload</code>
+          Start the backend in the <code>backend</code> folder: <code>uvicorn api:app --reload</code>
         </p>
-        <button onClick={loadProblem} style={primaryBtn}>Try again</button>
+        <button onClick={loadProblem} style={primaryBtn}>Retry</button>
       </Shell>
     );
   }
 
   if (!problem) {
+    // Quiet skeleton: holds the prompt's height so nothing jumps when it loads.
     return (
       <Shell concept={concept}>
-        <p style={{ ...S.prompt, color: MUTED }}>Loading a problem…</p>
+        <div style={S.skelLine} />
+        <div style={{ ...S.skelLine, width: "72%" }} />
       </Shell>
     );
   }
@@ -140,6 +142,7 @@ function NumberDrill({ concept }: { concept: ConceptMeta }) {
           }}
           placeholder="your answer"
           inputMode="decimal"
+          aria-label={`Your answer for ${concept.title}`}
           disabled={solved}
           style={S.input}
         />
@@ -154,18 +157,20 @@ function NumberDrill({ concept }: { concept: ConceptMeta }) {
         <button onClick={loadProblem} style={solved ? primaryBtn : secondaryBtn}>New problem</button>
       </div>
 
-      {result?.kind === "info" && <p style={{ ...S.feedback, color: MUTED }}>{result.message}</p>}
+      {result?.kind === "info" && <p style={{ ...S.explain, color: MUTED }}>{result.message}</p>}
 
       {result?.kind === "outcome" && result.outcome.correct && (
-        <div style={{ ...S.feedback, color: GREEN }}>
-          <strong>Correct.</strong> The answer is {formatAnswer(result.outcome.correct_answer, concept.answer_unit)}.
+        <div style={{ ...S.feedback, color: GREEN }} role="status">
+          <strong>Correct.</strong> The answer is{" "}
+          <span style={NUM}>{formatAnswer(result.outcome.correct_answer, concept.answer_unit)}</span>.
         </div>
       )}
 
       {result?.kind === "outcome" && !result.outcome.correct && (
-        <div style={S.feedback}>
+        <div style={S.feedback} role="status">
           <div style={{ color: RED, fontWeight: 600 }}>
-            Not quite - the answer is {formatAnswer(result.outcome.correct_answer, concept.answer_unit)}.
+            Not quite. The answer is{" "}
+            <span style={NUM}>{formatAnswer(result.outcome.correct_answer, concept.answer_unit)}</span>.
           </div>
           <Feedback outcome={result.outcome} />
 
@@ -200,6 +205,9 @@ function NumberDrill({ concept }: { concept: ConceptMeta }) {
   );
 }
 
+// The engine's named misconception is the trusted result, so it carries the
+// accent. The AI hint is the soft fallback and stays quiet, which keeps the
+// thesis legible even in the feedback: tested diagnosis first, words second.
 function Feedback({ outcome }: { outcome: Outcome }) {
   if (outcome.diagnosis_text) {
     return (
@@ -212,7 +220,7 @@ function Feedback({ outcome }: { outcome: Outcome }) {
   if (outcome.feedback) {
     return (
       <p style={S.explain}>
-        <span style={{ ...S.tag, background: "#EFF6FF", color: "#1D4ED8" }}>AI hint</span>
+        <span style={S.tagSoft}>AI hint</span>
         {outcome.feedback}
       </p>
     );
@@ -222,25 +230,25 @@ function Feedback({ outcome }: { outcome: Outcome }) {
 
 function Shell({ concept, children }: { concept: ConceptMeta; children: React.ReactNode }) {
   return (
-    <div style={S.card}>
-      <div style={S.eyebrow}>Practice · {concept.title}</div>
+    <div style={{ ...card, maxWidth: 640 }}>
+      <div style={eyebrow}>Practice · {concept.title}</div>
       {children}
     </div>
   );
 }
 
 const S: Record<string, CSSProperties> = {
-  card: { background: "#FFFFFF", borderRadius: 18, padding: "30px 32px", maxWidth: 640, width: "100%", boxShadow: "0 12px 40px rgba(24,24,27,0.10)", boxSizing: "border-box" },
-  eyebrow: { fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, marginBottom: 14 },
-  prompt: { fontSize: 19, lineHeight: 1.5, margin: "0 0 22px", color: INK },
-  inputRow: { display: "flex", alignItems: "center", border: `1.5px solid ${BORDER}`, borderRadius: 10, padding: "0 14px", marginBottom: 16 },
-  dollar: { color: MUTED, fontSize: 18, marginRight: 6 },
-  input: { flex: 1, border: "none", outline: "none", padding: "12px 0", fontSize: 18, fontFamily: "inherit", color: INK, background: "transparent" },
-  buttons: { display: "flex", gap: 10 },
-  feedback: { marginTop: 20, fontSize: 16, lineHeight: 1.5 },
-  explain: { color: SUBTLE, fontSize: 15, margin: "10px 0 0", lineHeight: 1.55 },
-  tag: { display: "inline-block", fontSize: 11, fontWeight: 600, background: "#FFF1E9", color: ACCENT, borderRadius: 6, padding: "2px 8px", marginRight: 8, verticalAlign: "middle", fontFamily: "ui-monospace, monospace" },
-  actionRow: { display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" },
-  solution: { marginTop: 14, padding: "14px 16px", background: "#F7F7F8", border: `1px solid ${BORDER}`, borderRadius: 12, fontSize: 15, lineHeight: 1.6, color: INK },
-  solutionLabel: { fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: GREEN, marginBottom: 6 },
+  prompt: { fontSize: fs.md, lineHeight: 1.55, margin: "0 0 22px", color: INK },
+  inputRow: { display: "flex", alignItems: "center", border: `1px solid ${BORDER}`, borderRadius: radius.md, padding: "0 14px", marginBottom: space.lg, background: PAPER },
+  dollar: { ...NUM, color: MUTED, fontSize: fs.md, marginRight: 6 },
+  input: { ...NUM, flex: 1, border: "none", outline: "none", padding: "13px 0", fontSize: fs.md, color: INK, background: "transparent" },
+  buttons: { display: "flex", gap: space.md, flexWrap: "wrap" },
+  feedback: { marginTop: space.xl, fontSize: fs.base, lineHeight: 1.5 },
+  explain: { color: SUBTLE, fontSize: fs.sm, margin: "10px 0 0", lineHeight: 1.55 },
+  tag: { fontFamily: MONO, display: "inline-block", fontSize: fs.micro, fontWeight: 500, background: ACCENT, color: PAPER, borderRadius: radius.sm, padding: "2px 7px", marginRight: 8, verticalAlign: "middle" },
+  tagSoft: { fontFamily: MONO, display: "inline-block", fontSize: fs.micro, fontWeight: 500, background: "transparent", color: MUTED, border: `1px solid ${BORDER}`, borderRadius: radius.sm, padding: "1px 7px", marginRight: 8, verticalAlign: "middle" },
+  actionRow: { display: "flex", gap: space.md, marginTop: space.lg, flexWrap: "wrap" },
+  solution: { marginTop: space.md, padding: "14px 16px", background: PAPER, border: `1px solid ${BORDER}`, borderRadius: radius.md, fontSize: fs.sm, lineHeight: 1.6, color: INK },
+  solutionLabel: { fontFamily: MONO, fontSize: fs.micro, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: ACCENT, marginBottom: 6 },
+  skelLine: { height: 14, borderRadius: radius.sm, background: BORDER, opacity: 0.6, margin: "6px 0", width: "100%" },
 };

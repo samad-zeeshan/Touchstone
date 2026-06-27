@@ -5,7 +5,7 @@
  * what makes this cheap to re render alongside a scrubber.
  */
 import type { CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, BORDER } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, ACCENT_FILL, BORDER, PAPER, MONO, fs } from "../theme";
 
 export interface PseudocodeProps {
   title?: string;
@@ -20,17 +20,20 @@ export default function Pseudocode({
   lines,
   active = -1,
   accent = ACCENT,
-  accentFill = "rgba(234, 88, 12, 0.10)",
+  accentFill = ACCENT_FILL,
 }: PseudocodeProps) {
   return (
     <div style={S.wrap}>
       {title && <div style={S.title}>{title}</div>}
-      <div style={S.code}>
+      <div style={S.code} role="group" aria-label={title ? `${title} pseudocode` : "Pseudocode"}>
         {lines.map((ln, i) => {
           const on = i === active;
           return (
             <div
               key={i}
+              // The active line is announced so a screen reader tracks the step the
+              // animation is on, the same signal the inset accent bar gives sighted users.
+              aria-current={on ? "step" : undefined}
               style={{
                 ...S.line,
                 background: on ? accentFill : "transparent",
@@ -54,8 +57,9 @@ export default function Pseudocode({
 const S: Record<string, CSSProperties> = {
   wrap: { width: "100%" },
   title: {
-    fontSize: 11,
-    fontWeight: 700,
+    fontFamily: MONO,
+    fontSize: fs.micro,
+    fontWeight: 500,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
     color: MUTED,
@@ -63,10 +67,11 @@ const S: Record<string, CSSProperties> = {
   },
   code: {
     border: `1px solid ${BORDER}`,
-    borderRadius: 10,
-    background: "#FCFCFD",
+    borderRadius: 8,
+    background: PAPER,
     padding: "8px 0",
-    fontFamily: "ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace",
+    fontFamily: MONO,
+    fontVariantNumeric: "tabular-nums",
     fontSize: 12.5,
     lineHeight: 1.5,
     overflowX: "auto",

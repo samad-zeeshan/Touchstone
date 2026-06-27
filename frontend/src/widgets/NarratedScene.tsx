@@ -6,7 +6,10 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { Beat } from "../api";
-import { INK, MUTED, ACCENT, GRID, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import {
+  INK, MUTED, ACCENT, ACCENT_FILL, PAPER, BORDER, MONO,
+  fs, space, radius, primaryBtn, secondaryBtn, prefersReducedMotion,
+} from "../theme";
 
 const VOICE_KEY = "aitutor:voice";
 function readVoicePref(): boolean {
@@ -27,6 +30,7 @@ export default function NarratedScene({ beats, renderFrame, compact, onClose }: 
   const [prog, setProg] = useState(0);
   const [voiceOn, setVoiceOn] = useState(readVoicePref);
   const raf = useRef(0);
+  const timer = useRef(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const canSpeak = typeof window !== "undefined" && "speechSynthesis" in window;
@@ -54,9 +58,10 @@ export default function NarratedScene({ beats, renderFrame, compact, onClose }: 
   }, [beats.length]);
 
   useEffect(() => {
-    // Tear down the previous beat's frame loop, audio, and speech before starting
-    // the next. The same teardown runs on unmount, which is what prevents leaks.
+    // Tear down the previous beat's frame loop, audio, timer, and speech before
+    // starting the next. The same teardown runs on unmount, which prevents leaks.
     cancelAnimationFrame(raf.current);
+    clearTimeout(timer.current);
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     if (canSpeak) window.speechSynthesis.cancel();
     if (!playing || beats.length === 0) return;
@@ -73,6 +78,24 @@ export default function NarratedScene({ beats, renderFrame, compact, onClose }: 
       const u = new SpeechSynthesisUtterance(beat.text);
       u.rate = 1.0;
       window.speechSynthesis.speak(u);
+    }
+
+    // Reduced motion path: skip the per-frame tween. The frame renders at its end
+    // state straight away and we only schedule the beat to advance once, on the
+    // audio finishing or on a single timer, so captions and voice still pace.
+    if (prefersReducedMotion()) {
+      // Jump to the end state in a single deferred frame (not synchronously in the
+      // effect body), then schedule the beat to advance on the audio finishing or
+      // a lone timer. No per-frame tween, so motion stays flat.
+      raf.current = requestAnimationFrame(() => setProg(1));
+      if (audio) audio.onended = advance;
+      else timer.current = window.setTimeout(advance, dur);
+      return () => {
+        cancelAnimationFrame(raf.current);
+        clearTimeout(timer.current);
+        if (audioRef.current) { audioRef.current.pause(); audioRef.current.onended = null; audioRef.current = null; }
+        if (canSpeak) window.speechSynthesis.cancel();
+      };
     }
 
     // Resume from wherever prog left off rather than snapping back to zero.
@@ -94,7 +117,7 @@ export default function NarratedScene({ beats, renderFrame, compact, onClose }: 
       if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
       if (canSpeak) window.speechSynthesis.cancel();
     };
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, playing, beats, durations, advance, canSpeak, voiceOn]);
 
@@ -110,7 +133,7 @@ export default function NarratedScene({ beats, renderFrame, compact, onClose }: 
   const beat = beats[idx];
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ width: "100%" }} aria-label="Narrated walkthrough" role="group">
       <div style={{ ...S.stage, minHeight: compact ? 200 : 300 }}>{renderFrame(beat.cue, idx, prog)}</div>
 
       <div style={S.captionBar}>
@@ -118,56 +141,66 @@ export default function NarratedScene({ beats, renderFrame, compact, onClose }: 
         <span style={S.captionText}>{beat.text}</span>
       </div>
 
-      <div style={S.dots}>
+      {/* Step markers double as the scrubber. Each is a 44px touch target with a
+          small visual dot, so it stays tappable on a phone. */}
+      <div style={S.dots} role="tablist" aria-label="Walkthrough steps">
         {beats.map((_, i) => (
           <button
             key={i}
             onClick={() => jump(i)}
-            aria-label={`Step ${i + 1}`}
-            style={{ ...S.dot, background: i === idx ? ACCENT : i < idx ? "rgba(234,88,12,0.4)" : GRID }}
-          />
+            aria-label={`Step ${i + 1} of ${beats.length}`}
+            aria-current={i === idx}
+            style={S.dotHit}
+          >
+            <span
+              style={{ ...S.dot, background: i === idx ? ACCENT : i < idx ? ACCENT_FILL : BORDER }}
+            />
+          </button>
         ))}
       </div>
 
       <div style={S.controls}>
-        <button onClick={togglePlay} style={primaryBtn}>
+        <button onClick={togglePlay} style={S.ctrlPrimary}>
           {atEnd ? "Replay" : playing ? "Pause" : "Play"}
         </button>
         {!atEnd && (
-          <button onClick={() => { setIdx(0); setProg(0); setPlaying(true); }} style={secondaryBtn}>
+          <button onClick={() => { setIdx(0); setProg(0); setPlaying(true); }} style={S.ctrl}>
             Restart
           </button>
         )}
         {hasVoice && (
           <button
             onClick={toggleVoice}
-            style={{ ...secondaryBtn, color: voiceOn ? ACCENT : MUTED }}
+            style={{ ...S.ctrl, color: voiceOn ? ACCENT : MUTED, borderColor: voiceOn ? ACCENT : BORDER }}
             aria-pressed={voiceOn}
             title={voiceOn ? "Mute the announcer" : "Turn the announcer on"}
           >
-            {voiceOn ? "🔊 Voice on" : "🔇 Voice off"}
+            {voiceOn ? "Voice on" : "Voice off"}
           </button>
         )}
-        {onClose && <button onClick={onClose} style={{ ...secondaryBtn, marginLeft: "auto" }}>Close</button>}
+        {onClose && <button onClick={onClose} style={{ ...S.ctrl, marginLeft: "auto" }}>Close</button>}
       </div>
 
       {hasVoice && !voiceOn && (
-        <div style={S.note}>Announcer muted - captions still follow along. Tap “Voice off” to switch it back on.</div>
+        <div style={S.note}>Announcer muted. Captions still follow along. Tap “Voice on” to switch it back.</div>
       )}
       {!hasVoice && (
-        <div style={S.note}>Narration plays as captions here - your browser doesn't expose a speech voice.</div>
+        <div style={S.note}>Narration plays as captions here. Your browser doesn't expose a speech voice.</div>
       )}
     </div>
   );
 }
 
 const S: Record<string, CSSProperties> = {
-  stage: { display: "flex", alignItems: "center", justifyContent: "center", background: "#FCFCFD", border: `1px solid ${BORDER}`, borderRadius: 14, padding: 16, boxSizing: "border-box" },
-  captionBar: { display: "flex", gap: 12, alignItems: "baseline", marginTop: 16, minHeight: 52 },
-  captionTag: { flexShrink: 0, fontSize: 11, fontWeight: 700, color: ACCENT, background: "#FFF1E9", borderRadius: 6, padding: "4px 9px", textTransform: "uppercase", letterSpacing: "0.06em" },
-  captionText: { fontSize: 16, lineHeight: 1.5, color: INK },
-  dots: { display: "flex", gap: 7, justifyContent: "center", marginTop: 16 },
-  dot: { width: 10, height: 10, borderRadius: 999, border: "none", padding: 0, cursor: "pointer" },
-  controls: { display: "flex", gap: 10, marginTop: 16, alignItems: "center" },
-  note: { marginTop: 12, fontSize: 12, color: MUTED },
+  stage: { display: "flex", alignItems: "center", justifyContent: "center", background: PAPER, border: `1px solid ${BORDER}`, borderRadius: radius.lg, padding: 16, boxSizing: "border-box" },
+  captionBar: { display: "flex", gap: space.md, alignItems: "baseline", marginTop: space.lg, minHeight: 52 },
+  captionTag: { flexShrink: 0, fontFamily: MONO, fontSize: fs.micro, fontWeight: 500, color: ACCENT, background: ACCENT_FILL, borderRadius: radius.sm, padding: "3px 8px", textTransform: "uppercase", letterSpacing: "0.04em" },
+  captionText: { fontSize: fs.base, lineHeight: 1.5, color: INK },
+  dots: { display: "flex", justifyContent: "center", marginTop: space.sm, flexWrap: "wrap" },
+  dotHit: { width: 44, height: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", padding: 0, cursor: "pointer" },
+  dot: { width: 9, height: 9, borderRadius: radius.pill, display: "inline-block", transition: "background 160ms" },
+  controls: { display: "flex", gap: space.md, marginTop: space.sm, alignItems: "center", flexWrap: "wrap" },
+  ctrlPrimary: { ...primaryBtn, minHeight: 44 },
+  ctrl: { ...secondaryBtn, minHeight: 44 },
+  note: { marginTop: space.md, fontSize: fs.xs, color: MUTED, lineHeight: 1.5 },
 };
