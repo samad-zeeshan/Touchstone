@@ -103,16 +103,15 @@ export default function SortingRace() {
   // shorter one at its end, so the loser visibly keeps going after merge is done.
   const maxLen = Math.max(bubble.length, merge.length);
 
-  const [pos, setPos] = useState(0); 
+  const [pos, setPos] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1); 
-  const timer = useRef<number | null>(null);
+  const [speed, setSpeed] = useState(1);
+  // The loop reads the live position through a ref so it can stop itself at the
+  // finish line without the effect re-subscribing every step.
+  const posRef = useRef(pos);
+  useEffect(() => { posRef.current = pos; }, [pos]);
 
-  const stop = useCallback(() => {
-    if (timer.current !== null) window.clearInterval(timer.current);
-    timer.current = null;
-    setPlaying(false);
-  }, []);
+  const stop = useCallback(() => setPlaying(false), []);
 
   const play = useCallback(() => {
     if (pos >= maxLen - 1) setPos(0);
@@ -120,21 +119,29 @@ export default function SortingRace() {
   }, [pos, maxLen]);
 
   const stepTo = useCallback((p: number) => {
-    stop();
+    setPlaying(false);
     setPos(Math.max(0, Math.min(maxLen - 1, p)));
-  }, [stop, maxLen]);
+  }, [maxLen]);
 
+  // Playback runs on requestAnimationFrame, not setInterval, so a backgrounded
+  // tab parks the loop and we advance by however many ticks the elapsed frame
+  // covered rather than queuing a backlog of timers.
   useEffect(() => {
     if (!playing) return;
-    timer.current = window.setInterval(() => {
-      setPos((p) => {
-        if (p >= maxLen - 1) { setPlaying(false); return p; }
-        return p + 1;
-      });
-    }, Math.round(45 / speed));
-    // Always clear the interval on unmount or replay so a paused tab does not
-    // leave a timer running.
-    return () => { if (timer.current !== null) window.clearInterval(timer.current); timer.current = null; };
+    const stepMs = Math.max(8, Math.round(45 / speed));
+    let raf = 0, last = performance.now(), acc = 0;
+    const loop = (now: number) => {
+      acc += now - last;
+      last = now;
+      // Stop at the finish line from inside the loop (not a synchronous effect).
+      if (posRef.current >= maxLen - 1) { setPlaying(false); return; }
+      let steps = 0;
+      while (acc >= stepMs) { acc -= stepMs; steps++; }
+      if (steps) setPos((p) => Math.min(maxLen - 1, p + steps));
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
   }, [playing, maxLen, speed]);
 
   const shuffle = useCallback(() => { stop(); setPos(0); setInput(shuffled()); }, [stop]);

@@ -1,9 +1,13 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
 import { API, fetchConcepts, type ConceptMeta } from "./api";
 import Catalog from "./Catalog";
-import ConceptPage from "./ConceptPage";
-import HowItWorks from "./HowItWorks";
 import AiToggle from "./AiToggle";
+
+// Code-split the heavy routes. ConceptPage pulls in every lesson and widget, so
+// keeping it (and the on-demand How-it-works dialog) out of the initial chunk
+// lets the catalog ship light. They load on first navigation.
+const ConceptPage = lazy(() => import("./ConceptPage"));
+const HowItWorks = lazy(() => import("./HowItWorks"));
 import {
   INK, MUTED, SUBTLE, ACCENT, BG, BORDER, PAPER, FONT, DISPLAY, MONO,
   fs, space, radius,
@@ -56,12 +60,20 @@ export default function App() {
         {!error && concepts === null && <Centered muted>Loading the catalog…</Centered>}
         {!error && concepts !== null && (
           selected
-            ? <ConceptPage concept={selected} reword={reword} onBack={() => setSelected(null)} />
+            ? (
+              <Suspense fallback={<Centered muted>Loading…</Centered>}>
+                <ConceptPage concept={selected} reword={reword} onBack={() => setSelected(null)} />
+              </Suspense>
+            )
             : <Catalog concepts={concepts} onSelect={setSelected} />
         )}
       </main>
 
-      <HowItWorks open={howOpen} onClose={() => setHowOpen(false)} />
+      {howOpen && (
+        <Suspense fallback={null}>
+          <HowItWorks open={howOpen} onClose={() => setHowOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@
  * The active index is the only thing that changes as an animation steps, which is
  * what makes this cheap to re render alongside a scrubber.
  */
-import type { CSSProperties } from "react";
+import { memo, type CSSProperties } from "react";
 import { INK, MUTED, SUBTLE, ACCENT, ACCENT_FILL, BORDER, PAPER, MONO, fs } from "../theme";
 
 export interface PseudocodeProps {
@@ -14,6 +14,32 @@ export interface PseudocodeProps {
   accent?: string;
   accentFill?: string;
 }
+
+// Each row is memoized so a step only re-renders the two lines whose active state
+// actually flips, not the whole listing. The marker is the only thing that moves.
+const Line = memo(function Line({ text, n, on, accent, accentFill }: {
+  text: string; n: number; on: boolean; accent: string; accentFill: string;
+}) {
+  return (
+    <div
+      // The active line is announced so a screen reader tracks the step the
+      // animation is on, the same signal the inset accent bar gives sighted users.
+      aria-current={on ? "step" : undefined}
+      style={{
+        ...S.line,
+        background: on ? accentFill : "transparent",
+        // The inset left bar is the active line marker, the one accent signal that
+        // says "this is the step running right now".
+        boxShadow: on ? `inset 3px 0 0 ${accent}` : "none",
+        color: on ? INK : SUBTLE,
+      }}
+    >
+      <span style={S.num}>{n}</span>
+      {/* Blank lines fall back to a non breaking space so the row keeps its height. */}
+      <span style={S.text}>{text === "" ? " " : text}</span>
+    </div>
+  );
+});
 
 export default function Pseudocode({
   title,
@@ -26,29 +52,9 @@ export default function Pseudocode({
     <div style={S.wrap}>
       {title && <div style={S.title}>{title}</div>}
       <div style={S.code} role="group" aria-label={title ? `${title} pseudocode` : "Pseudocode"}>
-        {lines.map((ln, i) => {
-          const on = i === active;
-          return (
-            <div
-              key={i}
-              // The active line is announced so a screen reader tracks the step the
-              // animation is on, the same signal the inset accent bar gives sighted users.
-              aria-current={on ? "step" : undefined}
-              style={{
-                ...S.line,
-                background: on ? accentFill : "transparent",
-                // The inset left bar is the active line marker, the one accent
-                // signal that says "this is the step running right now".
-                boxShadow: on ? `inset 3px 0 0 ${accent}` : "none",
-                color: on ? INK : SUBTLE,
-              }}
-            >
-              <span style={S.num}>{i + 1}</span>
-              {/* Blank lines fall back to a non breaking space so the row keeps its height. */}
-              <span style={S.text}>{ln === "" ? " " : ln}</span>
-            </div>
-          );
-        })}
+        {lines.map((ln, i) => (
+          <Line key={i} text={ln} n={i + 1} on={i === active} accent={accent} accentFill={accentFill} />
+        ))}
       </div>
     </div>
   );

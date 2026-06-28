@@ -29,11 +29,11 @@ const worstCase = Math.floor(Math.log2(N)) + 1;
 export default function BinarySearchStepper() {
   const [target, setTarget] = useState<number>(() => 1 + Math.floor(Math.random() * N));
   const [s, setS] = useState<Search>(fresh);
-  const timer = useRef<number | null>(null);
+  const raf = useRef<number | null>(null);
 
   const stop = useCallback(() => {
-    if (timer.current !== null) window.clearInterval(timer.current);
-    timer.current = null;
+    if (raf.current !== null) cancelAnimationFrame(raf.current);
+    raf.current = null;
   }, []);
 
   const step = useCallback(() => {
@@ -53,26 +53,22 @@ export default function BinarySearchStepper() {
     setS(fresh());
   }, [stop]);
 
+  // Auto-step runs on requestAnimationFrame with a 650ms accumulator rather than
+  // setInterval, so a backgrounded tab parks it. The completion effect below stops
+  // the loop once the search settles, keeping that decision out of the updater.
   const auto = useCallback(() => {
     stop();
-    timer.current = window.setInterval(() => {
-      setS((prev) => {
-        if (prev.found || prev.lo > prev.hi) {
-          stop();
-          return prev;
-        }
-        const mid = Math.floor((prev.lo + prev.hi) / 2);
-        const steps = prev.steps + 1;
-        if (VALUES[mid] === target) {
-          stop();
-          return { ...prev, mid, steps, found: true };
-        }
-        if (VALUES[mid] < target) return { ...prev, lo: mid + 1, mid, steps };
-        return { ...prev, hi: mid - 1, mid, steps };
-      });
-    }, 650);
-  }, [stop, target]);
+    let last = performance.now(), acc = 0;
+    const loop = (now: number) => {
+      acc += now - last;
+      last = now;
+      if (acc >= 650) { acc = 0; step(); }
+      raf.current = requestAnimationFrame(loop);
+    };
+    raf.current = requestAnimationFrame(loop);
+  }, [stop, step]);
 
+  useEffect(() => { if (s.found || s.lo > s.hi) stop(); }, [s, stop]);
   useEffect(() => stop, [stop]);
 
   const done = s.found || s.lo > s.hi;
