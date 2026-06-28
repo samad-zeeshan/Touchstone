@@ -92,7 +92,7 @@ export default function CallTree() {
           lines={CODE}
           active={2}
           accent={memoized ? GREEN : ACCENT}
-          accentFill={memoized ? "rgba(22,163,74,0.10)" : "rgba(234,88,12,0.10)"}
+          accentFill={memoized ? "rgba(22,163,74,0.10)" : "rgba(11, 110, 97,0.10)"}
         />
       </div>
 

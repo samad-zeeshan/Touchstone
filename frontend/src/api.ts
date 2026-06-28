@@ -19,6 +19,9 @@ export interface Problem {
   params: Record<string, number>;
   prompt: string;
   answer_unit: Unit;
+  // The generator seed, not the answer. Re-requesting with the same seed yields
+  // the identical numbers, which is what powers the AI on/off demonstration.
+  seed: number;
 }
 
 export interface Outcome {
@@ -44,8 +47,16 @@ export async function fetchConcepts(): Promise<ConceptMeta[]> {
   return (await res.json()) as ConceptMeta[];
 }
 
-export async function fetchProblem(conceptId: string): Promise<Problem> {
-  const res = await fetch(`${API}/concepts/${conceptId}/problem`);
+export async function fetchProblem(
+  conceptId: string,
+  opts: { seed?: number; reword?: boolean } = {},
+): Promise<Problem> {
+  const q = new URLSearchParams();
+  if (opts.seed !== undefined) q.set("seed", String(opts.seed));
+  // Only send reword when explicitly off; the backend defaults to on.
+  if (opts.reword === false) q.set("reword", "false");
+  const qs = q.toString();
+  const res = await fetch(`${API}/concepts/${conceptId}/problem${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("bad status");
   return (await res.json()) as Problem;
 }

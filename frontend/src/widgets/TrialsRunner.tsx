@@ -120,7 +120,7 @@ const S: Record<string, CSSProperties> = {
   bigNumber: { fontSize: 52, fontWeight: 700, color: ACCENT, fontVariantNumeric: "tabular-nums", lineHeight: 1 },
   bigCaption: { fontSize: 14, color: SUBTLE, marginTop: 6, marginBottom: 40 },
   track: { position: "relative", height: 22, background: GRID, borderRadius: 6, border: `1px solid ${BORDER}`, marginBottom: 40 },
-  fill: { position: "absolute", left: 0, top: 0, bottom: 0, background: "rgba(234,88,12,0.25)", borderRadius: 6 },
+  fill: { position: "absolute", left: 0, top: 0, bottom: 0, background: "rgba(11, 110, 97,0.25)", borderRadius: 6 },
   buttons: { display: "flex", gap: 10, flexWrap: "wrap" },
   footer: { marginTop: 20, fontSize: 12, color: MUTED },
 };

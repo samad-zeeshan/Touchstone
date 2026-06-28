@@ -69,7 +69,7 @@ export default function GridSearch() {
             const shade = on ? Math.max(0.12, 1 - d / (DIST + 2)) : 0;
             return (
               <rect key={`${x},${y}`} x={cx(x) + 1} y={cy(y) + 1} width={cell - 2} height={cell - 2} rx={4}
-                fill={on ? `rgba(234,88,12,${0.1 + shade * 0.5})` : "#F7F7F8"} stroke={BORDER} strokeWidth={0.75} />
+                fill={on ? `rgba(11, 110, 97,${0.1 + shade * 0.5})` : "#F7F7F8"} stroke={BORDER} strokeWidth={0.75} />
             );
           }),
         )}

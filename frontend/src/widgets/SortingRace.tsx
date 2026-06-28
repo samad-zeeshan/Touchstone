@@ -5,8 +5,14 @@
  * indexes both, so the race is measured in comparisons not wall clock time.
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, ACCENT_FILL, BORDER, PAPER, BG, DISPLAY, MONO, fs, primaryBtn, secondaryBtn } from "../theme";
 import Pseudocode from "./Pseudocode";
+
+// Bubble is the plodder, so it reads in slate while merge keeps the one accent.
+// Two tones, both on palette, is enough to tell the racers apart.
+const SLATE = SUBTLE;
+const SLATE_FILL = "rgba(86, 90, 86, 0.10)";
+const RESTING = "#CBD0C9"; // an unsorted bar, quiet paper-grey
 
 const N = 18;
 
@@ -153,8 +159,8 @@ export default function SortingRace() {
           complexity="O(n log n)"
           frame={mFrame}
           done={mDone}
-          accent={GREEN}
-          accentFill="rgba(22, 163, 74, 0.10)"
+          accent={ACCENT}
+          accentFill={ACCENT_FILL}
           code={MERGE_CODE}
         />
         <Panel
@@ -162,8 +168,8 @@ export default function SortingRace() {
           complexity="O(n²)"
           frame={bFrame}
           done={bDone}
-          accent={ACCENT}
-          accentFill="rgba(234, 88, 12, 0.10)"
+          accent={SLATE}
+          accentFill={SLATE_FILL}
           code={BUBBLE_CODE}
         />
       </div>
@@ -194,8 +200,8 @@ export default function SortingRace() {
       </div>
 
       <div style={S.readout}>
-        Merge finished in <strong style={{ color: GREEN }}>{merge[merge.length - 1].comps}</strong> comparisons;
-        bubble needed <strong style={{ color: ACCENT }}>{bubble[bubble.length - 1].comps}</strong> -{" "}
+        Merge finished in <strong style={{ ...S.num, color: ACCENT }}>{merge[merge.length - 1].comps}</strong> comparisons.
+        Bubble needed <strong style={{ ...S.num, color: SLATE }}>{bubble[bubble.length - 1].comps}</strong>,
         about {Math.round(bubble[bubble.length - 1].comps / merge[merge.length - 1].comps)}× more.
       </div>
     </div>
@@ -222,7 +228,9 @@ function Panel({ title, complexity, frame, done, accent, accentFill, code }: {
         {frame.arr.map((v, i) => {
           const h = (v / N) * (H - 8);
           const active = i === frame.a || i === frame.b;
-          const fill = done ? GREEN : active ? accent : "#D4D4D8";
+          // A finished bar settles into the panel's own colour, so merge ends teal
+          // and bubble ends slate; mid-run, only the compared pair lights up.
+          const fill = done ? accent : active ? accent : RESTING;
           return <rect key={i} x={i * (bw + gap)} y={H - h} width={bw} height={h} rx={2} fill={fill} />;
         })}
       </svg>
@@ -234,30 +242,31 @@ function Panel({ title, complexity, frame, done, accent, accentFill, code }: {
 }
 
 const S: Record<string, CSSProperties> = {
-  eyebrow: { fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, marginBottom: 8 },
-  headline: { margin: 0, fontSize: 25, fontWeight: 700, lineHeight: 1.2, color: INK },
-  sub: { margin: "8px 0 22px", color: SUBTLE, fontSize: 15, lineHeight: 1.5 },
+  eyebrow: { fontFamily: MONO, fontSize: fs.micro, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", color: ACCENT, marginBottom: 8 },
+  headline: { fontFamily: DISPLAY, margin: 0, fontSize: fs.xl, fontWeight: 600, lineHeight: 1.15, color: INK, letterSpacing: "-0.01em" },
+  sub: { margin: "8px 0 22px", color: SUBTLE, fontSize: fs.sm, lineHeight: 1.55 },
   panels: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 },
-  panel: { border: `1px solid ${BORDER}`, borderRadius: 12, padding: "12px 14px", background: "#FCFCFD" },
-  panelHead: { display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontSize: 14 },
-  opClock: { fontSize: 12, color: MUTED, fontVariantNumeric: "tabular-nums", marginTop: 2, marginBottom: 12 },
+  panel: { border: `1px solid ${BORDER}`, borderRadius: 12, padding: "12px 14px", background: PAPER },
+  panelHead: { display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontSize: fs.sm },
+  opClock: { fontFamily: MONO, fontSize: fs.xs, color: MUTED, fontVariantNumeric: "tabular-nums", marginTop: 2, marginBottom: 12 },
   buttons: { display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap", alignItems: "center" },
-  speedWrap: { display: "inline-flex", gap: 4, background: "#F4F4F5", borderRadius: 999, padding: 3 },
-  readout: { marginTop: 18, fontSize: 16, lineHeight: 1.5, color: INK },
+  speedWrap: { display: "inline-flex", gap: 4, background: BG, borderRadius: 999, padding: 3 },
+  readout: { marginTop: 18, fontSize: fs.base, lineHeight: 1.55, color: INK },
+  num: { fontFamily: MONO, fontVariantNumeric: "tabular-nums" },
 };
 
 function speedBtn(active: boolean): CSSProperties {
   return {
     border: "none",
     borderRadius: 999,
-    padding: "5px 11px",
-    fontSize: 12.5,
-    fontWeight: 700,
+    padding: "6px 11px",
+    fontSize: fs.xs,
+    fontWeight: 600,
     cursor: "pointer",
+    fontFamily: MONO,
     fontVariantNumeric: "tabular-nums",
-    background: active ? "#fff" : "transparent",
+    background: active ? PAPER : "transparent",
     color: active ? ACCENT : SUBTLE,
-    boxShadow: active ? "0 1px 2px rgba(0,0,0,0.12)" : "none",
-    fontFamily: "inherit",
+    minHeight: 32,
   };
 }

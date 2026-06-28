@@ -202,7 +202,7 @@ function RateFrame({ conceptId, cue, progress }: { conceptId: string; cue: Beat[
         {Math.round(fill * 100)}%
       </text>
       <rect x={x0} y={barY} width={span} height={22} rx={6} fill={GRID} />
-      <rect x={x0} y={barY} width={Math.max(0, fill * span)} height={22} rx={6} fill="rgba(234,88,12,0.3)" />
+      <rect x={x0} y={barY} width={Math.max(0, fill * span)} height={22} rx={6} fill="rgba(11, 110, 97,0.3)" />
       
       <line x1={at(cfg.intV)} y1={barY - 16} x2={at(cfg.intV)} y2={barY + 38} stroke={MUTED} strokeWidth={2} strokeDasharray="4 4" />
       <text x={at(cfg.intV)} y={barY - 22} textAnchor="middle" fontSize="11" fill={MUTED}>{cfg.intLabel}</text>
@@ -437,8 +437,8 @@ function PayoffFrame({ cue }: { cue: Beat["cue"] }) {
   const bg = (you: number, them: number): string => {
     if (hi === "nash" && you === 1 && them === 1) return "rgba(22,163,74,0.18)";
     if (hi === "reward" && you === 0 && them === 0) return "rgba(37,99,235,0.14)";
-    if (hi === "temptation" && you === 1 && them === 0) return "rgba(234,88,12,0.16)";
-    if (hi === "defect-row" && you === 1) return "rgba(234,88,12,0.12)";
+    if (hi === "temptation" && you === 1 && them === 0) return "rgba(11, 110, 97,0.16)";
+    if (hi === "defect-row" && you === 1) return "rgba(11, 110, 97,0.12)";
     return "#fff";
   };
   return (
@@ -477,7 +477,7 @@ function GridFrame({ cue }: { cue: Beat["cue"] }) {
   for (let y = 0; y < G_ROWS; y++) for (let x = 0; x < G_COLS; x++) {
     const d = gMan(x, y), on = d <= radius;
     cells.push(<rect key={`${x},${y}`} x={cx(x) + 1} y={cy(y) + 1} width={cell - 2} height={cell - 2} rx={3}
-      fill={on ? `rgba(234,88,12,${0.12 + Math.max(0, 1 - d / 14) * 0.45})` : "#F7F7F8"} stroke={GRID} strokeWidth={0.5} />);
+      fill={on ? `rgba(11, 110, 97,${0.12 + Math.max(0, 1 - d / 14) * 0.45})` : "#F7F7F8"} stroke={GRID} strokeWidth={0.5} />);
   }
   return (
     <g>
@@ -569,7 +569,7 @@ function MctsFrame({ cue }: { cue: Beat["cue"] }) {
             <text x={26} y={y + 38} fontSize="10" fill={MUTED}>{r.w}/{r.n}</text>
             <rect x={barX} y={y + 8} width={barW} height={28} rx={5} fill={GRID} stroke={BORDER} strokeWidth={0.5} />
             <rect x={barX} y={y + 8} width={ew} height={28} rx={5} fill={ACCENT} />
-            <rect x={barX + ew} y={y + 8} width={xw} height={28} fill="rgba(234,88,12,0.3)" />
+            <rect x={barX + ew} y={y + 8} width={xw} height={28} fill="rgba(11, 110, 97,0.3)" />
             <text x={barX + barW + 12} y={y + 27} fontSize="14" fontWeight={sel ? 700 : 400} fill={sel ? GREEN : MUTED}>{r.total.toFixed(2)}{sel ? " ←" : ""}</text>
           </g>
         );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ChangeEvent, type CSSProperties, type KeyboardEvent } from "react";
+import { useState, useEffect, useCallback, useRef, type ChangeEvent, type CSSProperties, type KeyboardEvent } from "react";
 import { fetchProblem, gradeAttempt, type ConceptMeta, type Problem, type Outcome } from "./api";
 import {
   INK, SUBTLE, MUTED, ACCENT, GREEN, RED, BORDER, PAPER, MONO, NUM,
@@ -7,16 +7,16 @@ import {
 import MistakeClip from "./MistakeClip";
 import { interactiveModes } from "./interactivePractice";
 
-export default function Practice({ concept }: { concept: ConceptMeta }) {
+export default function Practice({ concept, reword }: { concept: ConceptMeta; reword: boolean }) {
   const interactive = interactiveModes(concept.id);
   const modes = [
     ...interactive,
-    { id: "drill", label: "Number drill", render: () => <NumberDrill concept={concept} /> },
+    { id: "drill", label: "Number drill", render: () => <NumberDrill concept={concept} reword={reword} /> },
   ];
   const [active, setActive] = useState<string>(modes[0].id);
 
   // A concept with no interactive modes is the drill directly, no empty switcher.
-  if (interactive.length === 0) return <NumberDrill concept={concept} />;
+  if (interactive.length === 0) return <NumberDrill concept={concept} reword={reword} />;
 
   const current = modes.find((m) => m.id === active) ?? modes[modes.length - 1];
   return (
@@ -55,7 +55,7 @@ type Result =
   | { kind: "info"; message: string }
   | { kind: "outcome"; outcome: Outcome; submitted: number };
 
-function NumberDrill({ concept }: { concept: ConceptMeta }) {
+function NumberDrill({ concept, reword }: { concept: ConceptMeta; reword: boolean }) {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loadError, setLoadError] = useState<boolean>(false);
   const [answer, setAnswer] = useState<string>("");
@@ -63,6 +63,17 @@ function NumberDrill({ concept }: { concept: ConceptMeta }) {
   const [checking, setChecking] = useState<boolean>(false);
   const [showClip, setShowClip] = useState<boolean>(false);
   const [showSolution, setShowSolution] = useState<boolean>(false);
+
+  // Refs keep the AI toggle honest without re-fetching on every render. rewordRef
+  // mirrors the current flag so a fresh problem respects the toggle; lastReword
+  // only updates when the swap effect handles a real flip, which is how it tells a
+  // toggle apart from a re-render. All three are synced in effects, never during
+  // render, so they stay off the render path.
+  const rewordRef = useRef(reword);
+  const lastReword = useRef(reword);
+  const problemRef = useRef<Problem | null>(null);
+  useEffect(() => { rewordRef.current = reword; });
+  useEffect(() => { problemRef.current = problem; }, [problem]);
 
   const loadProblem = useCallback(async (): Promise<void> => {
     setProblem(null);
@@ -72,7 +83,7 @@ function NumberDrill({ concept }: { concept: ConceptMeta }) {
     setShowClip(false);
     setShowSolution(false);
     try {
-      setProblem(await fetchProblem(concept.id));
+      setProblem(await fetchProblem(concept.id, { reword: rewordRef.current }));
     } catch {
       setLoadError(true);
     }
@@ -81,6 +92,21 @@ function NumberDrill({ concept }: { concept: ConceptMeta }) {
   useEffect(() => {
     loadProblem();
   }, [loadProblem]);
+
+  // The demonstration. On an actual toggle, re-fetch the SAME seed with the new
+  // reword flag so the numbers are byte-for-byte identical and only the prose
+  // changes. Mount and concept switches are ignored, since reword is unchanged.
+  useEffect(() => {
+    if (lastReword.current === reword) return;
+    lastReword.current = reword;
+    const cur = problemRef.current;
+    if (!cur) return;
+    let live = true;
+    fetchProblem(concept.id, { seed: cur.seed, reword })
+      .then((p) => { if (live) setProblem(p); })
+      .catch(() => { /* keep the current prose on a failed swap */ });
+    return () => { live = false; };
+  }, [reword, concept.id]);
 
   async function check(): Promise<void> {
     if (!problem) return;

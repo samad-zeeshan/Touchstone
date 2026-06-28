@@ -134,7 +134,9 @@ export default function SortDriver() {
           const x = idx * (bars.bw + bars.gap);
           const settled = idx >= settledFrom;
           const active = !cursor.done && (idx === cursor.j || idx === cursor.j + 1);
-          const fill = cursor.done ? GREEN : active ? ACCENT : settled ? GREEN : "#D4D4D8";
+          // The pair under comparison is full accent; bars already locked in place
+          // are a pale accent; the rest stay a quiet resting grey.
+          const fill = cursor.done ? ACCENT : active ? ACCENT : settled ? "#9DBDB7" : "#CBD0C9";
           return (
             <g key={idx}>
               <rect x={x} y={bars.H - h - 18} width={bars.bw} height={h} rx={3} fill={fill} />
@@ -210,7 +212,7 @@ function Stat({ label, value, color }: { label: string; value: string; color: st
 }
 
 const S: Record<string, CSSProperties> = {
-  card: { background: "#FFFFFF", borderRadius: 18, padding: "30px 32px", maxWidth: 640, width: "100%", boxShadow: "0 12px 40px rgba(24,24,27,0.10)", boxSizing: "border-box" },
+  card: { background: "#FAFBF7", border: "1px solid #D8DBD4", borderRadius: 12, padding: "30px 32px", maxWidth: 640, width: "100%", boxSizing: "border-box" },
   eyebrow: { fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, marginBottom: 10 },
   headline: { margin: 0, fontSize: 22, fontWeight: 700, lineHeight: 1.2, color: INK },
   sub: { margin: "8px 0 20px", color: SUBTLE, fontSize: 15, lineHeight: 1.55 },

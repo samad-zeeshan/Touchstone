@@ -14,7 +14,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "practice", label: "Practice" },
 ];
 
-export default function ConceptPage({ concept, onBack }: { concept: ConceptMeta; onBack: () => void }) {
+export default function ConceptPage({ concept, reword, onBack }: { concept: ConceptMeta; reword: boolean; onBack: () => void }) {
   const [tab, setTab] = useState<Tab>("lesson");
 
   return (
@@ -46,7 +46,7 @@ export default function ConceptPage({ concept, onBack }: { concept: ConceptMeta;
       <div style={S.stage} role="tabpanel">
         {tab === "lesson" && <div style={card}>{renderLesson(concept.id)}</div>}
         {tab === "walkthrough" && <Walkthrough concept={concept} />}
-        {tab === "practice" && <Practice concept={concept} />}
+        {tab === "practice" && <Practice concept={concept} reword={reword} />}
       </div>
     </div>
   );

@@ -43,12 +43,16 @@ class ConceptOut(BaseModel):
 
 # Note what is absent: no answer field. The problem goes out, the value stays
 # server side. Adding a correct_answer here would quietly break the oracle.
+# The seed is the one thing we add: it is the generator seed, not the answer, and
+# it lets the client re-request the very same numbers with the prose reworded or
+# plain. The value stays unreachable either way.
 class ProblemOut(BaseModel):
     concept: str
     template: str
     params: Dict[str, float]
     prompt: str
     answer_unit: str
+    seed: int
 
 class AttemptIn(BaseModel):
     template: str
@@ -123,22 +127,34 @@ def list_concepts():
     ]
 
 @app.get("/concepts/{concept_id}/problem", response_model=ProblemOut)
-def get_problem(concept_id: str, template: Optional[str] = None):
+def get_problem(concept_id: str, template: Optional[str] = None,
+                seed: Optional[int] = None, reword: bool = True):
     import random
     concept = _require(concept_id)
     if template is not None and template not in concept.templates:
         raise HTTPException(status_code=400, detail=f"unknown template: {template}")
 
-    problem = concept.generate(random.Random(), template)
-    # The one place AI sees a prompt. It may reword the prose but the key tokens
-    # guard means the params above are what the student actually solves against.
-    prompt = ai.reword_problem(problem.prompt, concept.key_tokens(problem.params, problem.template))
+    # Pin a seed so generation is reproducible. When the client does not supply
+    # one we choose it here and return it, which is what lets the AI toggle ask
+    # for the exact same numbers again with the prose reworded or plain.
+    if seed is None:
+        seed = random.randrange(2**31)
+    problem = concept.generate(random.Random(seed), template)
+
+    # The one place AI sees a prompt. reword=false skips the model and returns the
+    # deterministic template prose. Either way the key-tokens guard means the
+    # params above are what the student actually solves against.
+    prompt = (
+        ai.reword_problem(problem.prompt, concept.key_tokens(problem.params, problem.template))
+        if reword else problem.prompt
+    )
     return ProblemOut(
         concept=concept.id,
         template=problem.template,
         params=problem.params,
         prompt=prompt,
         answer_unit=concept.answer_unit,
+        seed=seed,
     )
 
 @app.post("/concepts/{concept_id}/attempt", response_model=AttemptOut)

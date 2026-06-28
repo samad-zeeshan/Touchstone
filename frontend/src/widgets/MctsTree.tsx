@@ -59,7 +59,7 @@ export default function MctsTree() {
               <text x={20} y={y + 36} fontSize="10" fill={MUTED}>{r.w}/{r.n}</text>
               <rect x={barX} y={y + 6} width={barW} height={26} rx={5} fill={GRID} stroke={BORDER} strokeWidth={0.5} />
               <rect x={barX} y={y + 6} width={ew} height={26} rx={5} fill={ACCENT} />
-              <rect x={barX + ew} y={y + 6} width={xw} height={26} fill="rgba(234,88,12,0.3)" />
+              <rect x={barX + ew} y={y + 6} width={xw} height={26} fill="rgba(11, 110, 97,0.3)" />
               <text x={barX + barW + 10} y={y + 23} fontSize="13" fontWeight={selected ? 700 : 400} fill={selected ? GREEN : SUBTLE}>
                 {r.ucb.toFixed(2)}{selected ? " ←" : ""}
               </text>
@@ -70,7 +70,7 @@ export default function MctsTree() {
 
       <div style={S.legend}>
         <span style={S.item}><span style={{ ...S.sw, background: ACCENT }} /> win rate</span>
-        <span style={S.item}><span style={{ ...S.sw, background: "rgba(234,88,12,0.3)" }} /> exploration bonus</span>
+        <span style={S.item}><span style={{ ...S.sw, background: "rgba(11, 110, 97,0.3)" }} /> exploration bonus</span>
       </div>
 
       <div style={S.controlRow}>
@@ -95,7 +95,7 @@ const S: Record<string, CSSProperties> = {
   eyebrow: { fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, marginBottom: 8 },
   headline: { margin: 0, fontSize: 25, fontWeight: 700, lineHeight: 1.2, color: INK },
   sub: { margin: "8px 0 18px", color: SUBTLE, fontSize: 15, lineHeight: 1.5 },
-  legend: { display: "flex", gap: 18, fontSize: 13, color: "#3F3F46", margin: "8px 0 14px" },
+  legend: { display: "flex", gap: 18, fontSize: 13, color: "#565A56", margin: "8px 0 14px" },
   item: { display: "inline-flex", alignItems: "center", gap: 7 },
   sw: { width: 18, height: 10, borderRadius: 3, display: "inline-block" },
   controlRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", margin: "8px 0 8px" },

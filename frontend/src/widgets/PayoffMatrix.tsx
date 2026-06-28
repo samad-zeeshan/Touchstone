@@ -13,7 +13,7 @@ export default function PayoffMatrix() {
 
   const highlight = (you: number, them: number): string => {
     if (step >= 2 && you === 1 && them === 1) return "rgba(22,163,74,0.16)";   
-    if (step >= 1 && you === 1) return "rgba(234,88,12,0.12)";                  
+    if (step >= 1 && you === 1) return "rgba(11, 110, 97,0.12)";                  
     return "#fff";
   };
 

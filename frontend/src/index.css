@@ -63,6 +63,19 @@ samp {
   background: rgba(11, 110, 97, 0.16);
 }
 
+/* The How-it-works dialog rises a few pixels on open. Flattened automatically by
+   the reduced-motion block below. */
+@keyframes hiw-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* The global reduced motion fallback. Widgets also route their JS timers through
    dur() in theme.ts; this covers any CSS transition or animation they declare. */
 @media (prefers-reduced-motion: reduce) {
