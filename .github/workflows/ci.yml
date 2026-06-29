@@ -1,0 +1,48 @@
+# CI gate for pull requests and main. Mirrors the three local gates exactly:
+# backend pytest (run through a venv, as locally), frontend build, frontend lint.
+#
+# Deployment is handled by the platforms' native git integrations (Render for the
+# API via render.yaml, Vercel for the frontend), so this workflow only verifies.
+# Protect `main` in repo settings to require both jobs green before a merge.
+
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Create venv and install deps
+        run: |
+          python -m venv ../.venv
+          ../.venv/bin/pip install --upgrade pip
+          ../.venv/bin/pip install -r requirements-dev.txt
+      - name: Run tests
+        run: ../.venv/bin/python -m pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint

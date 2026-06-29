@@ -1,6 +1,9 @@
 import type { Unit } from "./theme";
 
-export const API = "http://localhost:8000";
+// The backend origin. Set VITE_API_URL at build time on the static host (Vercel)
+// to point the deployed frontend at the deployed API; falls back to the local
+// dev server otherwise.
+export const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export interface ConceptMeta {
   id: string;

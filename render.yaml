@@ -1,0 +1,28 @@
+# Render Blueprint for the Touchstone API. Connect this repo in Render and it
+# reads this file. The platform health check hits the app's existing /health route,
+# and Render auto-deploys on pushes to main via its native git integration.
+#
+# Cold start: the free plan sleeps after ~15 minutes idle, so the first request
+# after a sleep takes a few seconds to wake. That is accepted for a portfolio app.
+# The UptimeRobot monitor below (pinging /health every 5 minutes) doubles as a
+# keep-warm, which all but removes the cold start. For a guaranteed always-on
+# instance, raise `plan` to a paid tier.
+services:
+  - type: web
+    name: touchstone-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # Set to the deployed frontend origin, e.g. https://touchstone.vercel.app
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # Optional. Without it the AI layer stays off and prose is templated.
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      # Optional. Enables backend error reporting (Sentry free tier).
+      - key: SENTRY_DSN
+        sync: false

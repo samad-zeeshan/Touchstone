@@ -19,11 +19,29 @@ import ai
 import tts
 from content import WALKTHROUGHS, CLIPS, render_clip
 
+# Optional error reporting. Guarded by both the package and a DSN, so it is a no-op
+# in dev and in tests where neither is present, and lights up in production once
+# SENTRY_DSN is set on the platform. No hard dependency is added.
+_SENTRY_DSN = os.environ.get("SENTRY_DSN")
+if _SENTRY_DSN:
+    try:
+        import sentry_sdk
+        sentry_sdk.init(dsn=_SENTRY_DSN, traces_sample_rate=0.0)
+    except Exception:
+        pass
+
 app = FastAPI(title="AI Tutor API")
+
+# Allowed browser origins come from the environment so the deployed frontend's
+# host can be whitelisted without a code change. Defaults cover local dev.
+_ORIGINS = os.environ.get(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173",
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[o.strip() for o in _ORIGINS if o.strip()],
     allow_methods=["*"],
     allow_headers=["*"],
 )
