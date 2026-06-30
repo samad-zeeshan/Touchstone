@@ -35,7 +35,7 @@ function loanBalance(P: number, r: number, T: number, year: number): number {
 const compoundConfig: CurveConfig = {
   eyebrow: "Compound interest",
   headline: "Your savings don't grow in a straight line.",
-  sub: "Drag the interest rate and watch the curve pull away from what your gut predicts.",
+  sub: "Drag the interest rate and watch the curve pull away from what your intuition predicts.",
   xMax: 20,
   xTicks: [0, 5, 10, 15, 20],
   xTickLabel: (t) => (t === 0 ? "now" : `${t} yr`),
@@ -118,7 +118,7 @@ const ROOM = 23;
 const birthdayConfig: TrialsConfig = {
   eyebrow: "Birthday paradox",
   headline: "23 people, even odds of a shared birthday.",
-  sub: "Our gut compares one person to the rest. The real question is every pair - and pairs add up fast.",
+  sub: "Our intuition compares one person to the rest. The real question is every pair - and pairs add up fast.",
   variants: [
     {
       label: "23 people",

@@ -42,7 +42,7 @@ export default function Catalog({ concepts, onSelect }: {
     <div style={S.page}>
       <header style={S.hero}>
         <div style={eyebrow}>An assay for intuition</div>
-        <h1 style={S.title}>Learn the things your gut gets wrong.</h1>
+        <h1 style={S.title}>Learn the things your intuition gets wrong.</h1>
         <p style={S.lede}>
           Guided lessons with live pseudocode, and practice graded by a tested engine. When you
           slip, it names the exact misconception behind your answer, not just <em>wrong</em>.
