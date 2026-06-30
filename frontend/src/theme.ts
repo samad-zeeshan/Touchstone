@@ -19,19 +19,19 @@ import type { CSSProperties } from "react";
 // interfaces default to. Contrast of ink, accent, clay, and subtle on paper all
 // clear WCAG AA for body text.
 
-export const INK = "#1B1E1C";      // primary text and headings (assay slate)
-export const SUBTLE = "#565A56";   // secondary text, still AA on paper
-export const MUTED = "#8A8F89";    // labels, disabled, decorative only
-export const BORDER = "#D8DBD4";   // hairlines, used sparingly not on everything
-export const GRID = "#E6E9E1";     // chart gridlines, quieter than a border
-export const BG = "#EDEFE9";       // the page, a soft patina paper
-export const PAPER = "#FAFBF7";    // raised surfaces, a warm off white
+export const INK = "var(--ink, #1b1e1c)";        // primary text and headings
+export const SUBTLE = "var(--subtle, #565a56)";  // secondary text, still AA
+export const MUTED = "var(--muted, #8a8f89)";    // labels, disabled, decorative only
+export const BORDER = "var(--border, #d8dbd4)";  // hairlines, used sparingly
+export const GRID = "var(--grid, #e6e9e1)";      // chart gridlines, quieter than a border
+export const BG = "var(--bg, #edefe9)";          // the page, a soft patina paper
+export const PAPER = "var(--paper, #fafbf7)";    // raised surfaces, a warm off white
 
 // One accent, one job: the line, value, or mark the system is reading as true.
 // Reusing it for anything decorative is what makes an interface read as noisy,
 // so it appears only where correctness or the active step is the point.
-export const ACCENT = "#0B6E61";
-export const ACCENT_FILL = "rgba(11, 110, 97, 0.10)";
+export const ACCENT = "var(--accent, #0b6e61)";
+export const ACCENT_FILL = "var(--accent-fill, rgba(11, 110, 97, 0.1))";
 
 // GREEN is kept as a named export for the widgets that import it, but it is the
 // accent. Correct and active are the same signal here on purpose, so a reviewer
@@ -40,7 +40,7 @@ export const GREEN = ACCENT;
 
 // The only other tone with meaning: a wrong or missed reading. A muted oxidised
 // clay, not a vermilion alarm, because a near miss is information, not a failure.
-export const RED = "#A14A3C";
+export const RED = "var(--red, #a14a3c)";
 
 // ---- Type ----------------------------------------------------------------
 // Three deliberate faces. Fraunces is an optical serif with real character for
@@ -102,6 +102,9 @@ export const motion = {
   easeInOut: "cubic-bezier(0.45, 0, 0.2, 1)",
 } as const;
 
+export const EASE_OUT: [number, number, number, number] = [0.2, 0, 0, 1];
+export const EASE_IN_OUT: [number, number, number, number] = [0.45, 0, 0.2, 1];
+
 // The global reduced motion switch. Every animated duration in the app is routed
 // through dur(), so a single OS level preference flattens all motion to instant
 // without each widget reimplementing the check.
@@ -117,6 +120,29 @@ export function dur(ms: number): number {
   return prefersReducedMotion() ? 0 : ms;
 }
 
+// ---- Theme ---------------------------------------------------------------
+export type Theme = "light" | "dark";
+export const THEME_STORAGE_KEY = "touchstone-theme";
+
+export function readTheme(): Theme {
+  if (typeof document !== "undefined") {
+    const t = document.documentElement.getAttribute("data-theme");
+    if (t === "dark" || t === "light") return t;
+  }
+  return "light";
+}
+
+export function applyTheme(theme: Theme): void {
+  if (typeof document !== "undefined") {
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // storage may be unavailable
+  }
+}
+
 // ---- Signature -----------------------------------------------------------
 // The signature control built in Phase 3 is a quiet AI on / off toggle in the
 // header. Flipping it on is literally the claim the product makes about itself,
@@ -125,7 +151,7 @@ export function dur(ms: number): number {
 export const SIGNATURE = {
   trackOn: ACCENT,
   trackOff: BORDER,
-  thumb: PAPER,
+  thumb: "var(--toggle-thumb, #fafbf7)",
   thumbInk: INK,
 } as const;
 

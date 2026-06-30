@@ -1,28 +1,56 @@
-/*
- * Global foundation. The design tokens live in theme.ts and are applied through
- * inline styles per component. This file only sets what has to be global: the
- * page surface, the default text face, a visible focus ring, the reduced motion
- * fallback, and tabular figures for inline code. The previous contents were a
- * leftover starter template (purple accent, fixed width column, dark mode) and
- * were removed because they fought the app's own layout.
- */
-
 :root {
-  /* Mirrors theme.ts so global CSS and inline styles agree. */
   --ink: #1b1e1c;
-  --paper: #fafbf7;
-  --bg: #edefe9;
-  --accent: #0b6e61;
+  --subtle: #565a56;
+  --muted: #8a8f89;
   --border: #d8dbd4;
+  --grid: #e6e9e1;
+  --bg: #edefe9;
+  --paper: #fafbf7;
+  --accent: #0b6e61;
+  --accent-fill: rgba(11, 110, 97, 0.1);
+  --red: #a14a3c;
 
+  --nav-bg: rgba(250, 251, 247, 0.82);
+  --backdrop: rgba(27, 30, 28, 0.32);
+  --selection: rgba(11, 110, 97, 0.16);
+  --toggle-thumb: #fafbf7;
+  --glow: rgba(11, 110, 97, 0.07);
+
+  --shadow-btn: 0 2px 8px rgba(27, 30, 28, 0.1);
+  --shadow-card: 0 6px 20px rgba(27, 30, 28, 0.1);
+
+  color-scheme: light;
   font: 16px/1.55 "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--ink);
   background: var(--bg);
-  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme="dark"] {
+  --ink: #eceee7;
+  --subtle: #a8ada4;
+  --muted: #868b82;
+  --border: #2e322b;
+  --grid: #24271f;
+  --bg: #131512;
+  --paper: #1e211c;
+  --accent: #35b9a4;
+  --accent-fill: rgba(53, 185, 164, 0.14);
+  --red: #d08974;
+
+  --nav-bg: rgba(30, 33, 28, 0.82);
+  --backdrop: rgba(0, 0, 0, 0.55);
+  --selection: rgba(53, 185, 164, 0.22);
+  --toggle-thumb: #c8ccc4;
+  --glow: rgba(53, 185, 164, 0.1);
+
+  --shadow-btn: 0 2px 10px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 10px 28px rgba(0, 0, 0, 0.55);
+
+  color-scheme: dark;
 }
 
 * {
@@ -49,6 +77,98 @@ body {
   outline: none;
 }
 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition:
+    background-color 120ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 120ms cubic-bezier(0.2, 0, 0, 1),
+    color 120ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0, 0, 1),
+    transform 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+.btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 90%, black);
+  border-color: color-mix(in srgb, var(--accent) 90%, black);
+  box-shadow: var(--shadow-btn);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--border);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--accent-fill);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.btn:disabled {
+  cursor: default;
+}
+
+.btn-ghost {
+  font-family: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  color: var(--subtle);
+  cursor: pointer;
+  transition: color 120ms cubic-bezier(0.2, 0, 0, 1);
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.bento {
+  display: grid;
+  gap: 16px;
+  align-items: stretch;
+}
+.bento-hero {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.bento-hero > .bento-marquee {
+  grid-column: 1 / -1;
+}
+.bento-quick {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 760px) {
+  .bento-quick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .bento-hero,
+  .bento-quick {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Inline code and any element opting into numerics gets the mono face with
    tabular figures so digits stay aligned. */
 code,
@@ -60,24 +180,9 @@ samp {
 }
 
 ::selection {
-  background: rgba(11, 110, 97, 0.16);
+  background: var(--selection);
 }
 
-/* The How-it-works dialog rises a few pixels on open. Flattened automatically by
-   the reduced-motion block below. */
-@keyframes hiw-rise {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* The global reduced motion fallback. Widgets also route their JS timers through
-   dur() in theme.ts; this covers any CSS transition or animation they declare. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -86,5 +191,10 @@ samp {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .btn:hover,
+  .btn:active {
+    transform: none !important;
   }
 }
