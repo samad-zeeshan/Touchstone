@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GRID, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GRID, BORDER, PAPER } from "../theme";
 
 export interface TrialVariant {
   label: string;
@@ -91,9 +91,9 @@ export default function TrialsRunner({ config }: { config: TrialsConfig }) {
       </div>
 
       <div style={S.buttons}>
-        <button onClick={() => run(100)} style={secondaryBtn}>Run 100</button>
-        <button onClick={() => run(1000)} style={primaryBtn}>Run 1,000</button>
-        <button onClick={reset} style={secondaryBtn}>Reset</button>
+        <button onClick={() => run(100)} className="btn btn-secondary">Run 100</button>
+        <button onClick={() => run(1000)} className="btn btn-primary">Run 1,000</button>
+        <button onClick={reset} className="btn btn-secondary">Reset</button>
       </div>
 
       <div style={S.footer}>{config.footer}</div>
@@ -116,7 +116,7 @@ const S: Record<string, CSSProperties> = {
   eyebrow: { fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, marginBottom: 8 },
   headline: { margin: 0, fontSize: 25, fontWeight: 700, lineHeight: 1.2, color: INK },
   sub: { margin: "8px 0 20px", color: SUBTLE, fontSize: 15 },
-  tabs: { display: "inline-flex", background: "#E4E4E7", borderRadius: 999, padding: 4, gap: 4, marginBottom: 24 },
+  tabs: { display: "inline-flex", background: GRID, borderRadius: 999, padding: 4, gap: 4, marginBottom: 24 },
   bigNumber: { fontSize: 52, fontWeight: 700, color: ACCENT, fontVariantNumeric: "tabular-nums", lineHeight: 1 },
   bigCaption: { fontSize: 14, color: SUBTLE, marginTop: 6, marginBottom: 40 },
   track: { position: "relative", height: 22, background: GRID, borderRadius: 6, border: `1px solid ${BORDER}`, marginBottom: 40 },
@@ -133,7 +133,7 @@ function tab(active: boolean): CSSProperties {
     fontSize: 14,
     fontWeight: 600,
     cursor: "pointer",
-    background: active ? "#fff" : "transparent",
+    background: active ? PAPER : "transparent",
     color: active ? ACCENT : SUBTLE,
     boxShadow: active ? "0 1px 3px rgba(0,0,0,0.12)" : "none",
   };

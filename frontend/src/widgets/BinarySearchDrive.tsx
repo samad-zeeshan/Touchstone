@@ -1,5 +1,5 @@
 import { useCallback, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, GRID, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, GRID, BORDER, PAPER, BG } from "../theme";
 import Pseudocode from "./Pseudocode";
 
 const NSIZE = 16;
@@ -89,8 +89,8 @@ export default function BinarySearchDrive() {
         {VALUES.map((v, i) => {
           const inWindow = i >= lo && i <= hi;
           const isMid = i === mid;
-          let bg = "#fff", color = INK, border = BORDER;
-          if (!inWindow && !(isMid && found)) { bg = "#FAFAFA"; color = MUTED; border = GRID; }
+          let bg = PAPER, color = INK, border = BORDER;
+          if (!inWindow && !(isMid && found)) { bg = BG; color = MUTED; border = GRID; }
           if (isMid) { bg = found ? GREEN : ACCENT; color = "#fff"; border = bg; }
           return (
             <button
@@ -117,7 +117,7 @@ export default function BinarySearchDrive() {
                 : `Found it in ${probes} probes, with ${mistakes} off-centre.`
               : "Window empty - not in the list."}
           </div>
-          <button onClick={reset} style={primaryBtn}>New target</button>
+          <button onClick={reset} className="btn btn-primary">New target</button>
         </div>
       )}
 
@@ -131,7 +131,7 @@ export default function BinarySearchDrive() {
         <Pseudocode title="What you're running" lines={CODE} active={activeLine} />
       </div>
 
-      {!done && <button onClick={reset} style={{ ...secondaryBtn, marginTop: 16 }}>New target</button>}
+      {!done && <button onClick={reset} className="btn btn-secondary" style={{ marginTop: 16 }}>New target</button>}
     </div>
   );
 }
@@ -146,7 +146,7 @@ function Stat({ label, value, color }: { label: string; value: string; color: st
 }
 
 const S: Record<string, CSSProperties> = {
-  card: { background: "#FAFBF7", border: "1px solid #D8DBD4", borderRadius: 12, padding: "30px 32px", maxWidth: 640, width: "100%", boxSizing: "border-box" },
+  card: { background: PAPER, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "30px 32px", maxWidth: 640, width: "100%", boxSizing: "border-box" },
   eyebrow: { fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, marginBottom: 10 },
   headline: { margin: 0, fontSize: 22, fontWeight: 700, lineHeight: 1.2, color: INK },
   sub: { margin: "8px 0 20px", color: SUBTLE, fontSize: 15, lineHeight: 1.55 },
@@ -157,7 +157,7 @@ const S: Record<string, CSSProperties> = {
   doneGood: { fontSize: 16, fontWeight: 600, color: GREEN },
   doneOk: { fontSize: 16, fontWeight: 600, color: INK },
   stats: { display: "flex", gap: 12, flexWrap: "wrap", marginTop: 20 },
-  stat: { flex: "1 1 90px", background: "#FAFAFA", border: "1px solid #EFEFF1", borderRadius: 12, padding: "10px 14px" },
+  stat: { flex: "1 1 90px", background: PAPER, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "10px 14px" },
   statNum: { fontSize: 19, fontWeight: 700, fontVariantNumeric: "tabular-nums" },
   statLabel: { fontSize: 11, color: MUTED, marginTop: 2, textTransform: "uppercase", letterSpacing: "0.05em" },
 };

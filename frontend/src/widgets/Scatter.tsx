@@ -1,5 +1,5 @@
 import { useMemo, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN } from "../theme";
 
 const MEAN = 100;
 const N = 60;
@@ -70,7 +70,7 @@ export default function Scatter() {
       </div>
 
       <div style={S.buttons}>
-        <button onClick={() => setShowExtreme((s) => !s)} style={showExtreme ? secondaryBtn : primaryBtn}>
+        <button onClick={() => setShowExtreme((s) => !s)} className={showExtreme ? "btn btn-secondary" : "btn btn-primary"}>
           {showExtreme ? "Hide" : "Highlight the top scorer"}
         </button>
       </div>

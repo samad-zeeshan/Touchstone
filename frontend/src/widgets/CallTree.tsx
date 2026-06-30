@@ -5,7 +5,7 @@
  * first computation of each value as the only one memoization would keep.
  */
 import { useMemo, useState, type ChangeEvent, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, PAPER, BORDER } from "../theme";
 import Pseudocode from "./Pseudocode";
 
 const CODE = [
@@ -155,7 +155,7 @@ export default function CallTree() {
       />
 
       <div style={S.buttons}>
-        <button onClick={() => setMemoized((m) => !m)} style={memoized ? primaryBtn : secondaryBtn}>
+        <button onClick={() => setMemoized((m) => !m)} className={memoized ? "btn btn-primary" : "btn btn-secondary"}>
           {memoized ? "Memoized ✓" : "Memoize"}
         </button>
       </div>
@@ -178,7 +178,7 @@ const S: Record<string, CSSProperties> = {
   sub: { margin: "8px 0 20px", color: SUBTLE, fontSize: 15 },
   scroll: { overflowX: "auto", padding: "4px 0 8px" },
   stats: { display: "flex", gap: 14, flexWrap: "wrap", margin: "18px 0 6px" },
-  stat: { flex: "1 1 120px", background: "#FAFAFA", border: "1px solid #EFEFF1", borderRadius: 12, padding: "12px 14px" },
+  stat: { flex: "1 1 120px", background: PAPER, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "12px 14px" },
   statNum: { fontSize: 22, fontWeight: 700, fontVariantNumeric: "tabular-nums" },
   statLabel: { fontSize: 12, color: MUTED, marginTop: 2 },
   controlRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", margin: "16px 0 8px" },

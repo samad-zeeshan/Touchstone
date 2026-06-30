@@ -1,5 +1,5 @@
 import { useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, BORDER, PAPER } from "../theme";
 
 const REWARD = 3, SUCKER = 0, TEMPT = 5, PUNISH = 1;
 
@@ -13,8 +13,8 @@ export default function PayoffMatrix() {
 
   const highlight = (you: number, them: number): string => {
     if (step >= 2 && you === 1 && them === 1) return "rgba(22,163,74,0.16)";   
-    if (step >= 1 && you === 1) return "rgba(11, 110, 97,0.12)";                  
-    return "#fff";
+    if (step >= 1 && you === 1) return "rgba(11, 110, 97,0.12)";
+    return PAPER;
   };
 
   return (
@@ -52,10 +52,10 @@ export default function PayoffMatrix() {
       </div>
 
       <div style={S.buttons}>
-        <button onClick={() => setStep((s) => Math.min(2, s + 1))} disabled={step >= 2} style={step >= 2 ? secondaryBtn : primaryBtn}>
+        <button onClick={() => setStep((s) => Math.min(2, s + 1))} disabled={step >= 2} className={step >= 2 ? "btn btn-secondary" : "btn btn-primary"}>
           {step === 0 ? "Show dominant strategy" : step === 1 ? "Show the outcome" : "Done"}
         </button>
-        <button onClick={() => setStep(0)} style={secondaryBtn}>Reset</button>
+        <button onClick={() => setStep(0)} className="btn btn-secondary">Reset</button>
       </div>
     </div>
   );

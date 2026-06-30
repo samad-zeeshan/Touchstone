@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, GRID, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, GRID, BORDER } from "../theme";
 
 export interface DistributionConfig {
   eyebrow: string;
@@ -93,9 +93,9 @@ export default function DistributionRunner({ config }: { config: DistributionCon
       </div>
 
       <div style={S.buttons}>
-        <button onClick={() => run(100)} style={secondaryBtn}>Run 100</button>
-        <button onClick={() => run(1000)} style={primaryBtn}>Run 1,000</button>
-        <button onClick={reset} style={secondaryBtn}>Reset</button>
+        <button onClick={() => run(100)} className="btn btn-secondary">Run 100</button>
+        <button onClick={() => run(1000)} className="btn btn-primary">Run 1,000</button>
+        <button onClick={reset} className="btn btn-secondary">Reset</button>
       </div>
       <div style={S.footer}>{config.footer}</div>
     </div>

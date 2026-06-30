@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, BORDER, GRID } from "../theme";
 import Pseudocode from "./Pseudocode";
 
 const COLS = 15, ROWS = 9;
@@ -69,7 +69,7 @@ export default function GridSearch() {
             const shade = on ? Math.max(0.12, 1 - d / (DIST + 2)) : 0;
             return (
               <rect key={`${x},${y}`} x={cx(x) + 1} y={cy(y) + 1} width={cell - 2} height={cell - 2} rx={4}
-                fill={on ? `rgba(11, 110, 97,${0.1 + shade * 0.5})` : "#F7F7F8"} stroke={BORDER} strokeWidth={0.75} />
+                fill={on ? `rgba(11, 110, 97,${0.1 + shade * 0.5})` : GRID} stroke={BORDER} strokeWidth={0.75} />
             );
           }),
         )}
@@ -100,10 +100,10 @@ export default function GridSearch() {
       </div>
 
       <div style={S.buttons}>
-        <button onClick={play} style={primaryBtn}>Flood (BFS)</button>
-        <button onClick={() => { stop(); setRadius(DIST); }} style={secondaryBtn}>Skip to goal</button>
-        <button onClick={() => setDiagonal((d) => !d)} style={secondaryBtn}>{diagonal ? "Hide diagonal" : "Show diagonal"}</button>
-        <button onClick={() => { stop(); setRadius(0); setDiagonal(false); }} style={secondaryBtn}>Reset</button>
+        <button onClick={play} className="btn btn-primary">Flood (BFS)</button>
+        <button onClick={() => { stop(); setRadius(DIST); }} className="btn btn-secondary">Skip to goal</button>
+        <button onClick={() => setDiagonal((d) => !d)} className="btn btn-secondary">{diagonal ? "Hide diagonal" : "Show diagonal"}</button>
+        <button onClick={() => { stop(); setRadius(0); setDiagonal(false); }} className="btn btn-secondary">Reset</button>
       </div>
     </div>
   );

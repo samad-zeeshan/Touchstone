@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT } from "../theme";
 
 const NS = [1, 2, 4, 9, 16, 25];
 const BINS = 24;
@@ -75,8 +75,8 @@ export default function SampleMeans() {
       </div>
 
       <div style={S.buttons}>
-        <button onClick={draw} style={primaryBtn}>Draw 2,000</button>
-        <button onClick={reset} style={secondaryBtn}>Reset</button>
+        <button onClick={draw} className="btn btn-primary">Draw 2,000</button>
+        <button onClick={reset} className="btn btn-secondary">Reset</button>
       </div>
     </div>
   );

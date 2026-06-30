@@ -6,7 +6,7 @@
  * to plot the true value against the naive intuition so the gap is the point.
  */
 import type { Beat } from "../api";
-import { INK, MUTED, ACCENT, ACCENT_FILL, GREEN, RED, GRID, BORDER } from "../theme";
+import { INK, MUTED, ACCENT, ACCENT_FILL, GREEN, RED, GRID, BORDER, PAPER, BG } from "../theme";
 import { EXAMPLE, minNodes, rootValue, prunedLeaves, evaluatedCount, layout } from "./gameTreeLogic";
 
 const W = 560;
@@ -243,12 +243,12 @@ function BinaryFrame({ cue }: { cue: Beat["cue"] }) {
         const y = 70 + row * (size + 16);
         const inWin = step === 0 || (i >= lo && i <= hi);
         const isMid = step > 0 && i === mid;
-        let bg = "#fff", fg = MUTED, stroke = GRID;
+        let bg = PAPER, fg = MUTED, stroke = GRID;
         if (inWin) { fg = INK; stroke = "#D4D4D8"; }
         if (isMid) { bg = found ? GREEN : ACCENT; fg = "#fff"; stroke = bg; }
         return (
           <g key={i}>
-            <rect x={x} y={y} width={size} height={size} rx={5} fill={inWin || isMid ? bg : "#FAFAFA"} stroke={stroke} />
+            <rect x={x} y={y} width={size} height={size} rx={5} fill={inWin || isMid ? bg : BG} stroke={stroke} />
             <text x={x + size / 2} y={y + size / 2 + 4} textAnchor="middle" fontSize="11" fontWeight={600} fill={fg}>{v}</text>
           </g>
         );
@@ -439,7 +439,7 @@ function PayoffFrame({ cue }: { cue: Beat["cue"] }) {
     if (hi === "reward" && you === 0 && them === 0) return "rgba(37,99,235,0.14)";
     if (hi === "temptation" && you === 1 && them === 0) return "rgba(11, 110, 97,0.16)";
     if (hi === "defect-row" && you === 1) return "rgba(11, 110, 97,0.12)";
-    return "#fff";
+    return PAPER;
   };
   return (
     <g>
@@ -477,7 +477,7 @@ function GridFrame({ cue }: { cue: Beat["cue"] }) {
   for (let y = 0; y < G_ROWS; y++) for (let x = 0; x < G_COLS; x++) {
     const d = gMan(x, y), on = d <= radius;
     cells.push(<rect key={`${x},${y}`} x={cx(x) + 1} y={cy(y) + 1} width={cell - 2} height={cell - 2} rx={3}
-      fill={on ? `rgba(11, 110, 97,${0.12 + Math.max(0, 1 - d / 14) * 0.45})` : "#F7F7F8"} stroke={GRID} strokeWidth={0.5} />);
+      fill={on ? `rgba(11, 110, 97,${0.12 + Math.max(0, 1 - d / 14) * 0.45})` : GRID} stroke={GRID} strokeWidth={0.5} />);
   }
   return (
     <g>

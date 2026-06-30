@@ -1,5 +1,5 @@
 import { useCallback, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, BORDER, PAPER } from "../theme";
 
 const CODE = [
   "function bubbleSort(a):",
@@ -62,7 +62,7 @@ export default function SortParsons() {
               style={{
                 ...S.row,
                 borderColor: wrong ? RED : solved ? GREEN : BORDER,
-                background: wrong ? "rgba(161, 74, 60, 0.08)" : solved ? "rgba(11, 110, 97, 0.10)" : "#FAFBF7",
+                background: wrong ? "rgba(161, 74, 60, 0.08)" : solved ? "rgba(11, 110, 97, 0.10)" : PAPER,
               }}
             >
               <span style={S.lineNo}>{pos + 1}</span>
@@ -85,8 +85,8 @@ export default function SortParsons() {
       ) : null}
 
       <div style={S.buttons}>
-        {!check?.solved && <button onClick={verify} style={primaryBtn}>Check order</button>}
-        <button onClick={shuffle} style={check?.solved ? primaryBtn : secondaryBtn}>Shuffle again</button>
+        {!check?.solved && <button onClick={verify} className="btn btn-primary">Check order</button>}
+        <button onClick={shuffle} className={check?.solved ? "btn btn-primary" : "btn btn-secondary"}>Shuffle again</button>
       </div>
     </div>
   );
@@ -95,7 +95,7 @@ export default function SortParsons() {
 function arrowBtn(disabled: boolean): CSSProperties {
   return {
     border: `1px solid ${BORDER}`,
-    background: "#fff",
+    background: PAPER,
     borderRadius: 7,
     width: 28,
     height: 24,
@@ -108,7 +108,7 @@ function arrowBtn(disabled: boolean): CSSProperties {
 }
 
 const S: Record<string, CSSProperties> = {
-  card: { background: "#FAFBF7", border: "1px solid #D8DBD4", borderRadius: 12, padding: "30px 32px", maxWidth: 640, width: "100%", boxSizing: "border-box" },
+  card: { background: PAPER, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "30px 32px", maxWidth: 640, width: "100%", boxSizing: "border-box" },
   eyebrow: { fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, marginBottom: 10 },
   headline: { margin: 0, fontSize: 22, fontWeight: 700, lineHeight: 1.2, color: INK },
   sub: { margin: "8px 0 20px", color: SUBTLE, fontSize: 15, lineHeight: 1.55 },

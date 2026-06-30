@@ -5,7 +5,7 @@
  * indexes both, so the race is measured in comparisons not wall clock time.
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, ACCENT_FILL, BORDER, PAPER, BG, DISPLAY, MONO, fs, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, ACCENT_FILL, BORDER, PAPER, BG, DISPLAY, MONO, fs } from "../theme";
 import Pseudocode from "./Pseudocode";
 
 // Bubble is the plodder, so it reads in slate while merge keeps the one accent.
@@ -193,17 +193,17 @@ export default function SortingRace() {
       <div style={S.opClock}>op {pos + 1} / {maxLen}</div>
 
       <div style={S.buttons}>
-        <button onClick={playing ? stop : play} style={primaryBtn}>
+        <button onClick={playing ? stop : play} className="btn btn-primary">
           {playing ? "Pause" : pos >= maxLen - 1 ? "Replay" : "Play"}
         </button>
-        <button onClick={() => stepTo(pos - 1)} disabled={pos === 0} style={secondaryBtn}>◀ Step</button>
-        <button onClick={() => stepTo(pos + 1)} disabled={pos >= maxLen - 1} style={secondaryBtn}>Step ▶</button>
+        <button onClick={() => stepTo(pos - 1)} disabled={pos === 0} className="btn btn-secondary">◀ Step</button>
+        <button onClick={() => stepTo(pos + 1)} disabled={pos >= maxLen - 1} className="btn btn-secondary">Step ▶</button>
         <span style={S.speedWrap}>
           {[0.5, 1, 2, 4].map((sp) => (
             <button key={sp} onClick={() => setSpeed(sp)} style={speedBtn(sp === speed)}>{sp}×</button>
           ))}
         </span>
-        <button onClick={shuffle} style={secondaryBtn}>Shuffle</button>
+        <button onClick={shuffle} className="btn btn-secondary">Shuffle</button>
       </div>
 
       <div style={S.readout}>

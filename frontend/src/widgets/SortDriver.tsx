@@ -5,7 +5,7 @@
  * correct move, so a wrong guess is flagged without derailing the sort.
  */
 import { useCallback, useMemo, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, PAPER, BORDER } from "../theme";
 import Pseudocode from "./Pseudocode";
 
 const NSIZE = 7;
@@ -87,16 +87,16 @@ export default function SortDriver() {
         setNote({
           kind: "ok",
           text: shouldSwap
-            ? `Right — ${left} > ${right}, so they swap.`
-            : `Right — ${left} ≤ ${right}, leave them.`,
+            ? `Right, ${left} > ${right}, so they swap.`
+            : `Right, ${left} ≤ ${right}, so leave them.`,
         });
       } else {
         setMistakes((m) => m + 1);
         setNote({
           kind: "err",
           text: shouldSwap
-            ? `Not quite — ${left} > ${right}, so bubble sort swaps them.`
-            : `Not quite — ${left} ≤ ${right}, so they stay put.`,
+            ? `Not quite. ${left} > ${right}, so bubble sort swaps them.`
+            : `Not quite. ${left} ≤ ${right}, so they stay put.`,
         });
       }
 
@@ -159,25 +159,25 @@ export default function SortDriver() {
         <>
           <div style={S.question}>
             Compare <strong style={{ color: ACCENT }}>{left}</strong> and{" "}
-            <strong style={{ color: ACCENT }}>{right}</strong> — what does bubble sort do?
+            <strong style={{ color: ACCENT }}>{right}</strong>. What does bubble sort do?
           </div>
           <div style={S.buttons}>
-            <button onClick={() => act(true)} style={primaryBtn}>Swap them</button>
-            <button onClick={() => act(false)} style={secondaryBtn}>Keep order</button>
+            <button onClick={() => act(true)} className="btn btn-primary">Swap them</button>
+            <button onClick={() => act(false)} className="btn btn-secondary">Keep order</button>
           </div>
         </>
       ) : (
         <div style={S.doneRow}>
           <div style={mistakes === 0 ? S.doneGood : S.doneOk}>
             {mistakes === 0 ? (
-              <>Sorted — a flawless run in {comparisons} comparisons.</>
+              <>Sorted. A flawless run in {comparisons} comparisons.</>
             ) : (
               <>
                 Sorted in {comparisons} comparisons, with {mistakes} wrong call{mistakes === 1 ? "" : "s"} along the way.
               </>
             )}
           </div>
-          <button onClick={reset} style={primaryBtn}>New list</button>
+          <button onClick={reset} className="btn btn-primary">New list</button>
         </div>
       )}
 
@@ -196,7 +196,7 @@ export default function SortDriver() {
       </div>
 
       {!cursor.done && (
-        <button onClick={reset} style={{ ...secondaryBtn, marginTop: 16 }}>New list</button>
+        <button onClick={reset} className="btn btn-secondary" style={{ marginTop: 16 }}>New list</button>
       )}
     </div>
   );
@@ -212,7 +212,7 @@ function Stat({ label, value, color }: { label: string; value: string; color: st
 }
 
 const S: Record<string, CSSProperties> = {
-  card: { background: "#FAFBF7", border: "1px solid #D8DBD4", borderRadius: 12, padding: "30px 32px", maxWidth: 640, width: "100%", boxSizing: "border-box" },
+  card: { background: PAPER, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "30px 32px", maxWidth: 640, width: "100%", boxSizing: "border-box" },
   eyebrow: { fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, marginBottom: 10 },
   headline: { margin: 0, fontSize: 22, fontWeight: 700, lineHeight: 1.2, color: INK },
   sub: { margin: "8px 0 20px", color: SUBTLE, fontSize: 15, lineHeight: 1.55 },
@@ -223,7 +223,7 @@ const S: Record<string, CSSProperties> = {
   doneOk: { fontSize: 17, fontWeight: 600, color: INK },
   note: { marginTop: 14, fontSize: 15, lineHeight: 1.5, fontWeight: 500 },
   stats: { display: "flex", gap: 12, flexWrap: "wrap", marginTop: 20 },
-  stat: { flex: "1 1 90px", background: "#FAFAFA", border: "1px solid #EFEFF1", borderRadius: 12, padding: "10px 14px" },
+  stat: { flex: "1 1 90px", background: PAPER, border: `1px solid ${BORDER}`, borderRadius: 12, padding: "10px 14px" },
   statNum: { fontSize: 19, fontWeight: 700, fontVariantNumeric: "tabular-nums" },
   statLabel: { fontSize: 11, color: MUTED, marginTop: 2, textTransform: "uppercase", letterSpacing: "0.05em" },
 };

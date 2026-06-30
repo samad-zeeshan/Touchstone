@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import type { Beat } from "../api";
 import {
   INK, MUTED, ACCENT, ACCENT_FILL, PAPER, BORDER, MONO,
-  fs, space, radius, primaryBtn, secondaryBtn, prefersReducedMotion,
+  fs, space, radius, prefersReducedMotion,
 } from "../theme";
 
 const VOICE_KEY = "aitutor:voice";
@@ -160,25 +160,26 @@ export default function NarratedScene({ beats, renderFrame, compact, onClose }: 
       </div>
 
       <div style={S.controls}>
-        <button onClick={togglePlay} style={S.ctrlPrimary}>
+        <button onClick={togglePlay} className="btn btn-primary" style={{ minHeight: 44 }}>
           {atEnd ? "Replay" : playing ? "Pause" : "Play"}
         </button>
         {!atEnd && (
-          <button onClick={() => { setIdx(0); setProg(0); setPlaying(true); }} style={S.ctrl}>
+          <button onClick={() => { setIdx(0); setProg(0); setPlaying(true); }} className="btn btn-secondary" style={{ minHeight: 44 }}>
             Restart
           </button>
         )}
         {hasVoice && (
           <button
             onClick={toggleVoice}
-            style={{ ...S.ctrl, color: voiceOn ? ACCENT : MUTED, borderColor: voiceOn ? ACCENT : BORDER }}
+            className="btn btn-secondary"
+            style={{ minHeight: 44, color: voiceOn ? ACCENT : MUTED, borderColor: voiceOn ? ACCENT : BORDER }}
             aria-pressed={voiceOn}
             title={voiceOn ? "Mute the announcer" : "Turn the announcer on"}
           >
             {voiceOn ? "Voice on" : "Voice off"}
           </button>
         )}
-        {onClose && <button onClick={onClose} style={{ ...S.ctrl, marginLeft: "auto" }}>Close</button>}
+        {onClose && <button onClick={onClose} className="btn btn-secondary" style={{ minHeight: 44, marginLeft: "auto" }}>Close</button>}
       </div>
 
       {hasVoice && !voiceOn && (
@@ -200,7 +201,5 @@ const S: Record<string, CSSProperties> = {
   dotHit: { width: 44, height: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", padding: 0, cursor: "pointer" },
   dot: { width: 9, height: 9, borderRadius: radius.pill, display: "inline-block", transition: "background 160ms" },
   controls: { display: "flex", gap: space.md, marginTop: space.sm, alignItems: "center", flexWrap: "wrap" },
-  ctrlPrimary: { ...primaryBtn, minHeight: 44 },
-  ctrl: { ...secondaryBtn, minHeight: 44 },
   note: { marginTop: space.md, fontSize: fs.xs, color: MUTED, lineHeight: 1.5 },
 };

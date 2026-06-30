@@ -5,7 +5,7 @@
  * two pseudocode panels.
  */
 import { useMemo, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, RED, BORDER } from "../theme";
 import { type Grid, EXAMPLE, minNodes, rootValue, prunedLeaves, evaluatedCount, layout } from "./gameTreeLogic";
 import Pseudocode from "./Pseudocode";
 
@@ -130,11 +130,11 @@ export default function GameTree({ mode }: { mode: "minimax" | "alphabeta" }) {
       </div>
 
       <div style={S.buttons}>
-        <button onClick={() => setRevealed((r) => !r)} style={primaryBtn}>
+        <button onClick={() => setRevealed((r) => !r)} className="btn btn-primary">
           {revealed ? "Hide" : mode === "minimax" ? "Reveal backup" : "Reveal pruning"}
         </button>
-        <button onClick={() => { setGrid(shuffledGrid()); setRevealed(false); }} style={secondaryBtn}>Shuffle</button>
-        <button onClick={() => { setGrid(EXAMPLE); setRevealed(false); }} style={secondaryBtn}>Example</button>
+        <button onClick={() => { setGrid(shuffledGrid()); setRevealed(false); }} className="btn btn-secondary">Shuffle</button>
+        <button onClick={() => { setGrid(EXAMPLE); setRevealed(false); }} className="btn btn-secondary">Example</button>
       </div>
     </div>
   );

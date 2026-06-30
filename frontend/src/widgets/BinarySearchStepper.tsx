@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, GRID, BORDER, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN, GRID, BORDER, PAPER, BG } from "../theme";
 import Pseudocode from "./Pseudocode";
 
 const N = 32;
@@ -94,11 +94,11 @@ export default function BinarySearchStepper() {
         {VALUES.map((v, i) => {
           const inWindow = i >= s.lo && i <= s.hi;
           const isMid = i === s.mid;
-          let bg = "#fff";
+          let bg = PAPER;
           let color = MUTED;
           let border = GRID;
           if (!inWindow && !(isMid && s.found)) {
-            bg = "#FAFAFA"; 
+            bg = BG;
           } else {
             color = INK;
             border = BORDER;
@@ -142,9 +142,9 @@ export default function BinarySearchStepper() {
       </div>
 
       <div style={S.buttons}>
-        <button onClick={step} disabled={done} style={done ? secondaryBtn : primaryBtn}>Step</button>
-        <button onClick={auto} disabled={done} style={secondaryBtn}>Auto</button>
-        <button onClick={reset} style={secondaryBtn}>New target</button>
+        <button onClick={step} disabled={done} className={done ? "btn btn-secondary" : "btn btn-primary"}>Step</button>
+        <button onClick={auto} disabled={done} className="btn btn-secondary">Auto</button>
+        <button onClick={reset} className="btn btn-secondary">New target</button>
       </div>
     </div>
   );

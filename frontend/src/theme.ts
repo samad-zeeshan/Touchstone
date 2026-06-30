@@ -197,30 +197,6 @@ export const sub: CSSProperties = {
   lineHeight: 1.55,
 };
 
-export const primaryBtn: CSSProperties = {
-  fontFamily: FONT,
-  background: ACCENT,
-  color: PAPER,
-  border: `1px solid ${ACCENT}`,
-  borderRadius: radius.md,
-  padding: "11px 20px",
-  fontSize: fs.sm,
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
-export const secondaryBtn: CSSProperties = {
-  fontFamily: FONT,
-  background: "transparent",
-  color: INK,
-  border: `1px solid ${BORDER}`,
-  borderRadius: radius.md,
-  padding: "11px 20px",
-  fontSize: fs.sm,
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
 export type Unit = "money" | "count" | "percent" | "number";
 
 // Display only formatting. Money and counts round to whole numbers, plain

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, type ChangeEvent, type CSSPro
 import { fetchProblem, gradeAttempt, type ConceptMeta, type Problem, type Outcome } from "./api";
 import {
   INK, SUBTLE, MUTED, ACCENT, GREEN, RED, BORDER, PAPER, MONO, NUM,
-  fs, space, radius, card, eyebrow, primaryBtn, secondaryBtn, formatAnswer,
+  fs, space, radius, card, eyebrow, formatAnswer,
 } from "./theme";
 import MistakeClip from "./MistakeClip";
 import { interactiveModes } from "./interactivePractice";
@@ -139,7 +139,7 @@ function NumberDrill({ concept, reword }: { concept: ConceptMeta; reword: boolea
         <p style={S.explain}>
           Start the backend in the <code>backend</code> folder: <code>uvicorn api:app --reload</code>
         </p>
-        <button onClick={loadProblem} style={primaryBtn}>Retry</button>
+        <button onClick={loadProblem} className="btn btn-primary">Retry</button>
       </Shell>
     );
   }
@@ -176,11 +176,11 @@ function NumberDrill({ concept, reword }: { concept: ConceptMeta; reword: boolea
 
       <div style={S.buttons}>
         {!solved && (
-          <button onClick={check} disabled={checking} style={primaryBtn}>
+          <button onClick={check} disabled={checking} className="btn btn-primary">
             {checking ? "Checking…" : "Check"}
           </button>
         )}
-        <button onClick={loadProblem} style={solved ? primaryBtn : secondaryBtn}>New problem</button>
+        <button onClick={loadProblem} className={solved ? "btn btn-primary" : "btn btn-secondary"}>New problem</button>
       </div>
 
       {result?.kind === "info" && <p style={{ ...S.explain, color: MUTED }}>{result.message}</p>}
@@ -202,10 +202,10 @@ function NumberDrill({ concept, reword }: { concept: ConceptMeta; reword: boolea
 
           <div style={S.actionRow}>
             {result.outcome.solution && !showSolution && (
-              <button onClick={() => setShowSolution(true)} style={secondaryBtn}>Show solution</button>
+              <button onClick={() => setShowSolution(true)} className="btn btn-secondary">Show solution</button>
             )}
             {result.outcome.has_clip && result.outcome.diagnosis && problem && !showClip && (
-              <button onClick={() => setShowClip(true)} style={secondaryBtn}>▶ Watch why</button>
+              <button onClick={() => setShowClip(true)} className="btn btn-secondary">▶ Watch why</button>
             )}
           </div>
 

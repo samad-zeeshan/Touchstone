@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type CSSProperties } from "react";
-import { INK, MUTED, SUBTLE, ACCENT, GREEN, primaryBtn, secondaryBtn } from "../theme";
+import { INK, MUTED, SUBTLE, ACCENT, GREEN } from "../theme";
 
 const A = 100; 
 const C = 10;  
@@ -98,7 +98,7 @@ export default function EquilibriumSim({ mode }: { mode: "equilibrium" | "tax" }
             {buyerBurden > sellerBurden ? "Inelastic demand → buyers bear more." : "Elastic demand → sellers bear more."}
           </div>
           <div style={S.buttons}>
-            <button onClick={() => setTax((t) => (t === 0 ? 20 : 0))} style={tax ? secondaryBtn : primaryBtn}>{tax ? "Remove tax" : "Add $20 tax"}</button>
+            <button onClick={() => setTax((t) => (t === 0 ? 20 : 0))} className={tax ? "btn btn-secondary" : "btn btn-primary"}>{tax ? "Remove tax" : "Add $20 tax"}</button>
           </div>
         </>
       )}
