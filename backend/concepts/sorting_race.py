@@ -7,8 +7,8 @@ from .base import Concept, Problem, count_grader, closest_match
 MISCONCEPTIONS = {
     "all-sorts-similar":
         "It looks like you expected the two sorts to be about the same. They "
-        "share the goal but not the cost: bubble sort's work grows like n^2 "
-        "while merge sort's grows like n*log2(n), so the slower one falls "
+        "share the goal but not the cost: bubble sort's work grows like n² "
+        "while merge sort's grows like n·log₂(n), so the slower one falls "
         "further behind as the list gets longer.",
 }
 
@@ -28,8 +28,8 @@ def diagnose(submitted: float, params: dict, template: str) -> Optional[str]:
     return closest_match(submitted, _wrong_values(params), band)
 
 def render(params: dict, template: str) -> str:
-    return (f"Bubble sort makes about n^2 comparisons; merge sort about "
-            f"n*log2(n). On a list of {params['n']:,} items, how many times "
+    return (f"Bubble sort makes about n² comparisons; merge sort about "
+            f"n·log₂(n). On a list of {params['n']:,} items, how many times "
             f"MORE comparisons does bubble sort make? (round to the nearest "
             f"whole number)")
 
@@ -48,7 +48,7 @@ CONCEPT = Concept(
     area="Algorithms",
     depth="experience",
     widget="stepper",
-    blurb="Bubble vs merge: the n^2 / n log n gap, raced side by side.",
+    blurb="Bubble vs merge: the gap between O(n²) and O(n log n), raced side by side.",
     answer_unit="count",
     templates=("speedup",),
     misconceptions=MISCONCEPTIONS,

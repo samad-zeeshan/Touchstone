@@ -5,7 +5,7 @@ from .base import Concept, Problem, count_grader, closest_match
 
 MISCONCEPTIONS = {
     "constants-dont-matter":
-        "It looks like you ignored B's constant factor and assumed the n^2 "
+        "It looks like you ignored B's constant factor and assumed the n² "
         "algorithm is always the slower one. Below the crossover the big "
         "constant actually makes B slower; they only tie at n equal to that "
         "constant.",
@@ -25,7 +25,7 @@ def diagnose(submitted: float, params: dict, template: str) -> Optional[str]:
     return closest_match(submitted, _wrong_values(params), band)
 
 def render(params: dict, template: str) -> str:
-    return (f"Algorithm A takes n^2 steps. Algorithm B takes {params['a']} times "
+    return (f"Algorithm A takes n² steps. Algorithm B takes {params['a']} times "
             f"n steps. At what input size n do the two take the same number of "
             f"steps?")
 
