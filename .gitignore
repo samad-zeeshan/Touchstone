@@ -6,6 +6,12 @@ __pycache__/
 *.pyc
 *.egg-info/
 
+# Coverage artifacts (coverage.py writes these wherever it runs, e.g. backend/)
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
 # Secrets and local env
 .env
 .env.*
