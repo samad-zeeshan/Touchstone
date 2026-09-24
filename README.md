@@ -15,6 +15,22 @@ it with a hands on widget so you can see the idea in motion.
 The backend runs on a free tier that sleeps when idle, so the first request after
 a quiet spell takes a few seconds to wake up. After that it is quick.
 
+## How it works
+
+A Python oracle on the server builds every problem and grades every answer, and an optional LLM is only allowed to reword the problem text.
+
+![Touchstone system overview](docs/diagrams/overview.png)
+The React app calls a FastAPI service on Render. The concept modules hold the answers, and the AI layer never touches a number.
+
+![One practice answer, start to finish](docs/diagrams/main-flow.png)
+Getting a problem and grading an answer. Dashed steps are optional LLM calls, and the app gives the same result without them.
+
+![How Touchstone ships](docs/diagrams/deployment.png)
+CI checks every pull request. Render and Vercel deploy on each push to main, and a scheduled ping keeps the free API instance awake.
+
+Interactive versions with pan, zoom and theme switch: `docs/diagrams/overview.html`, `docs/diagrams/main-flow.html`, `docs/diagrams/deployment.html`
+
+
 ## The live lessons
 
 Six lessons are live in the app right now. They all sit in the algorithms track
